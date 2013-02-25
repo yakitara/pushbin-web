@@ -9,7 +9,7 @@
     <script type='text/javascript' src='https://cdn.firebase.com/v0/firebase.js'></script>
     <script type='text/javascript' src='https://cdn.firebase.com/v0/firebase-auth-client.js'></script>
     <script type='text/javascript'>
-      var rootRef = new Firebase('https://pusceiver.firebaseIO.com');
+      var rootRef = new Firebase('<%= firebase_url %>');
       var authClient = new FirebaseAuthClient(rootRef, function(error, user) {
         if (error) {
           // an error occurred while attempting login

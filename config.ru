@@ -1,6 +1,9 @@
 # -*- ruby -*-
-use Rack::Static, :urls => ["/"], :root => "public"
-run lambda {}
+require './pusceiver-web'
+run Sinatra::Application
+
+#use Rack::Static, :urls => ["/"], :root => "public"
+#run lambda {}
 
 # run lambda { |env|
 #   [
