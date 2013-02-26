@@ -17,7 +17,7 @@
         } else if (user) {
           // user authenticated with Firebase
           console.log('User ID: ' + user.id + ', Provider: ' + user.provider);
-          window.location = 'pusceiver://x-calback-url/auth?auth_token=' + user.firebaseAuthToken;
+          window.location = 'pusceiver://x-callback-url/auth?auth_token=' + user.firebaseAuthToken;
         } else {
           // user is logged out
         }
