@@ -11,6 +11,9 @@
       <textarea></textarea>
       <input type="submit" />
     </form>
+
+    <ul id="items">
+    </ul>
     
     <script type='text/javascript' src='http://code.jquery.com/jquery-1.9.1.min.js'></script>
     <script type='text/javascript' src='https://cdn.firebase.com/v0/firebase.js'></script>
@@ -24,7 +27,9 @@
         } else if (user) {
           // user authenticated with Firebase
           console.log('User ID: ' + user.id + ', Provider: ' + user.provider);
-          //window.location = 'pusceiver://x-callback-url/auth?auth_token=' + user.firebaseAuthToken;
+          rootRef.on("child_added", function(snapshot, prevChildName) {
+            $("#items").prepend($("<li/>").text(snapshot.val()));
+          });
         } else {
           // user is logged out
         }
@@ -34,9 +39,13 @@
       }
       $("form").submit(function() {
         var $textarea = $(this).find("textarea");
-        rootRef.push($textarea.val(), function() {
-          $textarea.val("");
-        });
+        rootRef.push($textarea.val(), function(error) {
+          if (!error) {
+            $textarea.val("");
+          } else {
+            alert(error);
+          }
+        }).setPriority(Date.now());
         return false;
       });
     </script>
