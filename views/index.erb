@@ -39,13 +39,13 @@
       }
       $("form").submit(function() {
         var $textarea = $(this).find("textarea");
-        rootRef.push($textarea.val(), function(error) {
+        rootRef.push({".value": $textarea.val(), ".priority": Date.now()}, function(error) {
           if (!error) {
             $textarea.val("");
           } else {
             alert(error);
           }
-        }).setPriority(Date.now());
+        });
         return false;
       });
     </script>
