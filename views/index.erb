@@ -5,7 +5,11 @@
     <meta name="viewport" content="user-scalable=no,width=device-width" />
   </head>
   <body>
-    <a href="javascript:login()">login</a>
+    <div>
+      <a id="login" style="display:none;" href="javascript:Pusceiver.login()">Please login via Twitter account</a>
+      <span id="user" style="display:none;"></span>
+    </div>
+    <!--<a id="logout" href="javascript:Pusceiver.logout()">logout</a>-->
 
     <form>
       <textarea></textarea>
@@ -18,36 +22,9 @@
     <script type='text/javascript' src='http://code.jquery.com/jquery-1.9.1.min.js'></script>
     <script type='text/javascript' src='https://cdn.firebase.com/v0/firebase.js'></script>
     <script type='text/javascript' src='https://cdn.firebase.com/v0/firebase-auth-client.js'></script>
+    <script type='text/javascript' src='/pusceiver.js'></script>
     <script type='text/javascript'>
-      var rootRef = new Firebase('<%= firebase_url %>');
-      var authClient = new FirebaseAuthClient(rootRef, function(error, user) {
-        if (error) {
-          // an error occurred while attempting login
-          console.log(error);
-        } else if (user) {
-          // user authenticated with Firebase
-          console.log('User ID: ' + user.id + ', Provider: ' + user.provider);
-          rootRef.on("child_added", function(snapshot, prevChildName) {
-            $("#items").prepend($("<li/>").text(snapshot.val()));
-          });
-        } else {
-          // user is logged out
-        }
-      });
-      function login() {
-        authClient.login('twitter');
-      }
-      $("form").submit(function() {
-        var $textarea = $(this).find("textarea");
-        rootRef.push({".value": $textarea.val(), ".priority": Date.now()}, function(error) {
-          if (!error) {
-            $textarea.val("");
-          } else {
-            alert(error);
-          }
-        });
-        return false;
-      });
+      Pusceiver.init('<%= firebase_url %>');
     </script>
   </body>
 </html>
