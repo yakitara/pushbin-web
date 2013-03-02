@@ -1,5 +1,6 @@
 require 'sinatra'
 
+set :views, "views"
 set :public_folder, "public"
 
 locals = {:firebase_url => (ENV['FIREBASE_URL'] || 'https://pusceiver.firebaseio.com/')}
