@@ -13,7 +13,9 @@ Pusceiver = {
                     console.log("auth data:", data);
                     Pusceiver.itemsRef = Pusceiver.rootRef.child("users/" + data.auth.id + "/items");
                     Pusceiver.itemsRef.on("child_added", function(snapshot, prevChildName) {
-                        $("#items").prepend($("<li/>").text(snapshot.val()));
+                        var text = $("<pre>").text(snapshot.val()).html(),
+                            html = text.replace(/(https?:\/\/[^\s+]+)/, "<a href='$1'>$1</a>")
+                        $("#items").prepend($("<li/>").html(html));
                     });
                     Pusceiver.currentUser
                     $("#login").hide();
