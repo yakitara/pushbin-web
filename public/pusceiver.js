@@ -8,8 +8,10 @@ Pusceiver = {
             this.rootRef.auth(token, function(error, data) {
                 if (error) {
                     console.log("auth failed:", error);
-                    $("#login").show();
-                    $("#user").hide();
+                    $(".show-anon").show();
+                    $(".hidden-anon").hide();
+                    // $("#login").show();
+                    // $("#user").hide();
                 } else {
                     console.log("auth data:", data);
                     Pusceiver.itemsRef = Pusceiver.rootRef.child("users/" + data.auth.id + "/items");
@@ -18,14 +20,19 @@ Pusceiver = {
                             html = text.replace(/(https?:\/\/[^\s+]+)/, "<a href='$1'>$1</a>")
                         $("#items").prepend($("<li/>").html(html));
                     });
-                    Pusceiver.currentUser
-                    $("#login").hide();
-                    $("#user").show().text("@" + data.auth.nickname);
+                    //Pusceiver.currentUser
+                    //$("#login").hide();
+                    //$("#user").show().text("@" + data.auth.nickname);
+                    $("#user").text("@" + data.auth.nickname);
+                    $(".show-anon").hide();
+                    $(".hidden-anon").show();
                 }
             });
         } else {
-            $("#login").show();
-            $("#user").hide();
+            $(".show-anon").show();
+            $(".hidden-anon").hide();
+            // $("#login").show();
+            // $("#user").hide();
         }
     }
 };
