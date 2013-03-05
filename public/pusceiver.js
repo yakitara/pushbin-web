@@ -8,6 +8,8 @@ Pusceiver = {
             this.rootRef.auth(token, function(error, data) {
                 if (error) {
                     console.log("auth failed:", error);
+                    $("#login").show();
+                    $("#user").hide();
                 } else {
                     console.log("auth data:", data);
                     Pusceiver.itemsRef = Pusceiver.rootRef.child("users/" + data.auth.id + "/items");
