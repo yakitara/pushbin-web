@@ -1,6 +1,6 @@
 Pusceiver = {
     rootRef: null,
-    itemsRef: null,
+    userRef: null,
     init: function(firebaseUrl) {
         var token = $.cookie('firebaseUserToken');
         this.rootRef = new Firebase(firebaseUrl);
@@ -10,19 +10,36 @@ Pusceiver = {
                     console.log("auth failed:", error);
                     $(".show-anon").show();
                     $(".hidden-anon").hide();
-                    // $("#login").show();
-                    // $("#user").hide();
                 } else {
                     console.log("auth data:", data);
-                    Pusceiver.itemsRef = Pusceiver.rootRef.child("users/" + data.auth.id + "/items");
-                    Pusceiver.itemsRef.on("child_added", function(snapshot, prevChildName) {
+                    Pusceiver.userRef = Pusceiver.rootRef.child("users/" + data.auth.id);
+                    // users/$uid/items
+                    var itemsRef = Pusceiver.userRef.child("items");
+                    $("#private form").attr("action", itemsRef.path.toString());
+                    itemsRef.on("child_added", function(snapshot, prevChildName) {
                         var text = $("<pre>").text(snapshot.val()).html(),
                             html = text.replace(/(https?:\/\/[^\s+]+)/, "<a href='$1'>$1</a>")
-                        $("#items").prepend($("<li/>").html(html));
+                        $("#private .items").prepend($("<li/>").html(html));
                     });
-                    //Pusceiver.currentUser
-                    //$("#login").hide();
-                    //$("#user").show().text("@" + data.auth.nickname);
+                    // rooms
+                    Pusceiver.userRef.child("rooms").on("child_added", function(snapshot) {
+                        // console.log(snapshot.name());
+                        var room_id = snapshot.name();
+                        var $tab = $("<li>").append($("<a>").text("room1").attr({"href": "#" + room_id, "data-toggle": "tab"}));
+                        $("#rooms-tab li:last").before($tab)
+                        var roomRef = Pusceiver.rootRef.child("rooms/" + room_id + "/items");
+                        var $pane = $("#rooms-pane div.tab-pane:last").clone().removeClass("active").attr("id", room_id);
+                        $pane.find("form").attr("action", roomRef.path.toString());
+                        $pane.find(".items").html("");
+                        $("#rooms-pane div.tab-pane:last").after($pane);
+                        roomRef.on("child_added", function(itemSnapshot) {
+                            console.log("room item added:", itemSnapshot);
+                            var text = $("<pre>").text(itemSnapshot.val()).html(),
+                            html = text.replace(/(https?:\/\/[^\s+]+)/, "<a href='$1'>$1</a>")
+                            $("#" + room_id + " .items").prepend($("<li/>").html(html));
+                        });
+                    });
+                    //
                     $("#user").text("@" + data.auth.nickname);
                     $(".show-anon").hide();
                     $(".hidden-anon").show();
@@ -31,20 +48,26 @@ Pusceiver = {
         } else {
             $(".show-anon").show();
             $(".hidden-anon").hide();
-            // $("#login").show();
-            // $("#user").hide();
         }
     }
 };
 
-$("form").submit(function() {
-    var $textarea = $(this).find("textarea");
-    Pusceiver.itemsRef.push({".value": $textarea.val(), ".priority": Date.now()}, function(error) {
+$(document).on("click", "#rooms-pane input[type='submit']", function(e) {
+    var $form = $(this).closest("form");
+    var $textarea = $form.find("textarea");
+    var path = $form.attr("action");
+    Pusceiver.rootRef.child(path).push({".value": $textarea.val(), ".priority": Date.now()}, function(error) {
         if (!error) {
             $textarea.val("");
         } else {
             alert(error);
         }
     });
+    return false;
+});
+
+$("a[href='#new-room']").click(function() {
+    var room = Pusceiver.rootRef.child("/rooms").push();
+    Pusceiver.userRef.child("rooms/" + room.name()).set(1);
     return false;
 });
