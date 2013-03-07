@@ -21,11 +21,18 @@ Pusceiver = {
                             html = text.replace(/(https?:\/\/[^\s+]+)/, "<a href='$1'>$1</a>")
                         $("#private .items").prepend($("<li/>").html(html));
                     });
+                    // direct room
+                    var room_id = window.location.hash.replace(/^#/, "");
+                    //hash && $('ul.nav a[href="' + hash + '"]').tab('show');
+                    //Pusceiver.rootRef.child("/rooms/" + hash)
+                    if (room_id && room_id != "private") {
+                        Pusceiver.userRef.child("rooms/" + room_id).set(1);
+                    }
                     // rooms
                     Pusceiver.userRef.child("rooms").on("child_added", function(snapshot) {
                         // console.log(snapshot.name());
                         var room_id = snapshot.name();
-                        var $tab = $("<li>").append($("<a>").text("room1").attr({"href": "#" + room_id, "data-toggle": "tab"}));
+                        var $tab = $("<li>").append($("<a>").text("room1").attr({"href": "#" + room_id}));
                         $("#rooms-tab li:last").before($tab)
                         var roomRef = Pusceiver.rootRef.child("rooms/" + room_id + "/items");
                         var $pane = $("#rooms-pane div.tab-pane:last").clone().removeClass("active").attr("id", room_id);
@@ -66,8 +73,24 @@ $(document).on("click", "#rooms-pane input[type='submit']", function(e) {
     return false;
 });
 
+$(document).on("click", '.nav-tabs a', function (e) {
+    // No e.preventDefault() here
+    $(this).tab('show');
+});
+
+// New room
 $("a[href='#new-room']").click(function() {
     var room = Pusceiver.rootRef.child("/rooms").push();
     Pusceiver.userRef.child("rooms/" + room.name()).set(1);
     return false;
 });
+
+// Join room
+// $(function() {
+//     var hash = window.location.hash;
+//     //hash && $('ul.nav a[href="' + hash + '"]').tab('show');
+//     //Pusceiver.rootRef.child("/rooms/" + hash)
+//     if (hash && hash != "private") {
+//         Pusceiver.userRef.child("rooms/" + hash).set(1);
+//     }
+// });
