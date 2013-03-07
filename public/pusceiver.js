@@ -34,6 +34,7 @@ Pusceiver = {
                         $("#rooms-tab li:last").before($tab)
                         var roomRef = Pusceiver.rootRef.child(roomPath + "/items");
                         var $pane = $("#rooms-pane div.tab-pane:last").clone().removeClass("active").attr("id", room_id);
+                        $pane.find(".room-menu").removeClass("hide");
                         $pane.find("form").attr("action", roomRef.path.toString());
                         $pane.find(".items").html("");
                         $("#rooms-pane div.tab-pane:last").after($pane);
