@@ -12,9 +12,9 @@ get %r{^/(rooms/[^/]+)?$} do
   erb :index, :locals => locals
 end
 
-get '/login' do
-  erb :login, :locals => locals
-end
+# get '/login' do
+#   erb :login, :locals => locals
+# end
 
 # auth
 enable :sessions
