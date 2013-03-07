@@ -22,19 +22,17 @@ Pusceiver = {
                         $("#private .items").prepend($("<li/>").html(html));
                     });
                     // direct room
-                    var room_id = window.location.hash.replace(/^#/, "");
-                    //hash && $('ul.nav a[href="' + hash + '"]').tab('show');
-                    //Pusceiver.rootRef.child("/rooms/" + hash)
-                    if (room_id && room_id != "private") {
-                        Pusceiver.userRef.child("rooms/" + room_id).set(1);
+                    if (window.location.pathname.match("/rooms/[^/]+")) {
+                        Pusceiver.userRef.child(window.location.pathname).set(1);
                     }
                     // rooms
                     Pusceiver.userRef.child("rooms").on("child_added", function(snapshot) {
                         // console.log(snapshot.name());
                         var room_id = snapshot.name();
-                        var $tab = $("<li>").append($("<a>").text("room1").attr({"href": "#" + room_id}));
+                        var roomPath = "/rooms/" + room_id;
+                        var $tab = $("<li>").append($("<a>").text("room1").attr({"href": roomPath, "data-target": "#" + room_id}));
                         $("#rooms-tab li:last").before($tab)
-                        var roomRef = Pusceiver.rootRef.child("rooms/" + room_id + "/items");
+                        var roomRef = Pusceiver.rootRef.child(roomPath + "/items");
                         var $pane = $("#rooms-pane div.tab-pane:last").clone().removeClass("active").attr("id", room_id);
                         $pane.find("form").attr("action", roomRef.path.toString());
                         $pane.find(".items").html("");
@@ -45,6 +43,9 @@ Pusceiver = {
                             html = text.replace(/(https?:\/\/[^\s+]+)/, "<a href='$1'>$1</a>")
                             $("#" + room_id + " .items").prepend($("<li/>").html(html));
                         });
+                        if (window.location.pathname == roomPath) {
+                            $("a[href='" + roomPath +  "']").tab('show');
+                        }
                     });
                     //
                     $("#user").text("@" + data.auth.nickname);
@@ -73,8 +74,11 @@ $(document).on("click", "#rooms-pane input[type='submit']", function(e) {
     return false;
 });
 
+// Change rooms
 $(document).on("click", '.nav-tabs a', function (e) {
     // No e.preventDefault() here
+    e.preventDefault();
+    window.history.pushState(null, null, $(this).attr("href"));
     $(this).tab('show');
 });
 
