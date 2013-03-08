@@ -29,7 +29,7 @@ Pusceiver = {
                 $("a[href='" + path +  "']").tab('show');
             }
             // title
-            Pusceiver.rootRef.child(path).once("value", function(roomSnapshot) {
+            Pusceiver.rootRef.child(path).on("value", function(roomSnapshot) {
                 var room = roomSnapshot.val();
                 $("a[href='" + path +  "']").text(room.title);
             });
@@ -105,4 +105,29 @@ $("a[href='#new-room']").click(function() {
     window.history.pushState(null, null, "/" + path);
     Pusceiver.userRef.child(path).set(1);
     return false;
+});
+
+// Edit room
+$(document).on("click", "a[href='#room-edit']", function(e) {
+    var room_id = $(this).closest(".tab-pane").prop("id");
+    Pusceiver.rootRef.child("/rooms/" + room_id).once("value", function(roomSnapshot) {
+        var room = roomSnapshot.val();
+        $("#room-edit input[name='title']").val(room.title);
+        $("#room-edit form").prop("action", roomSnapshot.ref().path.toString());
+        $("#room-edit").modal();
+    });
+    return false;
+});
+// Update room
+$(document).on("submit", "#room-edit form", function(e) {
+    e.preventDefault();
+    var path = $(this).attr("action");
+    var val = $(this).serializeObject();
+    Pusceiver.rootRef.child(path).update(val, function(error) {
+        if (error) {
+            console.log(error);
+        } else {
+            $("#room-edit").modal('hide');
+        }
+    });
 });
