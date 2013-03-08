@@ -1,3 +1,6 @@
+// Reuirements (versions are used for development)
+// - jQuery 1.9.1
+// - Twitter bootstrap 2.3.1
 Pusceiver = {
     Room: {
         initItems: function (room_id, path) {
@@ -72,6 +75,7 @@ Pusceiver = {
     }
 };
 
+// Push an item
 $(document).on("submit", "#rooms-pane form", function(e) {
     var $form = $(this);
     var $textarea = $form.find("textarea");
@@ -86,7 +90,7 @@ $(document).on("submit", "#rooms-pane form", function(e) {
     return false;
 });
 
-// Change rooms
+// Switch rooms
 $(document).on("click", '.nav-tabs a', function (e) {
     // No e.preventDefault() here
     e.preventDefault();
