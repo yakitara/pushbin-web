@@ -65,8 +65,8 @@ Pusceiver = {
     }
 };
 
-$(document).on("click", "#rooms-pane input[type='submit']", function(e) {
-    var $form = $(this).closest("form");
+$(document).on("submit", "#rooms-pane form", function(e) {
+    var $form = $(this);
     var $textarea = $form.find("textarea");
     var path = $form.attr("action");
     Pusceiver.rootRef.child(path).push({".value": $textarea.val(), ".priority": Date.now()}, function(error) {
