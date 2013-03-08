@@ -12,7 +12,7 @@ Pusceiver = {
         init: function (room_id) {
             var path = "/rooms/" + room_id;
             // clone tab for the room
-            var $tab = $("<li>").append($("<a>").text("room1").attr({"href": path, "data-target": "#" + room_id}));
+            var $tab = $("<li>").append($("<a>").attr({"href": path, "data-target": "#" + room_id}));
             $("#rooms-tab li:last").before($tab)
             var $pane = $("#rooms-pane div.tab-pane:last").clone().removeClass("active").attr("id", room_id);
             $pane.find(".room-menu").removeClass("hide");
@@ -25,6 +25,11 @@ Pusceiver = {
             if (window.location.pathname == path) {
                 $("a[href='" + path +  "']").tab('show');
             }
+            // title
+            Pusceiver.rootRef.child(path).once("value", function(roomSnapshot) {
+                var room = roomSnapshot.val();
+                $("a[href='" + path +  "']").text(room.title);
+            });
         }
     },
     rootRef: null,
