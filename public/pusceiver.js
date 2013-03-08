@@ -1,6 +1,34 @@
 Pusceiver = {
+    Room: {
+        initItems: function (room_id, path) {
+            var itemsRef = Pusceiver.rootRef.child(path);
+            $("#" + room_id + " form").attr("action", path);
+            itemsRef.on("child_added", function(snapshot, prevChildName) {
+                var text = $("<pre>").text(snapshot.val()).html();
+                var html = text.replace(/(https?:\/\/[^\s+]+)/, "<a href='$1'>$1</a>");
+                $("#" + room_id + " .items").prepend($("<li/>").html(html));
+            });
+        },
+        init: function (room_id) {
+            var path = "/rooms/" + room_id;
+            // clone tab for the room
+            var $tab = $("<li>").append($("<a>").text("room1").attr({"href": path, "data-target": "#" + room_id}));
+            $("#rooms-tab li:last").before($tab)
+            var $pane = $("#rooms-pane div.tab-pane:last").clone().removeClass("active").attr("id", room_id);
+            $pane.find(".room-menu").removeClass("hide");
+            $pane.find("form").attr("action", path + "/items");
+            $pane.find(".items").html("");
+            $("#rooms-pane div.tab-pane:last").after($pane);
+            // items
+            this.initItems(room_id, path + "/items")
+            // Switch to the room if the URL matched
+            if (window.location.pathname == path) {
+                $("a[href='" + path +  "']").tab('show');
+            }
+        }
+    },
     rootRef: null,
-    userRef: null,
+    //userRef: null,
     init: function(firebaseUrl) {
         var token = $.cookie('firebaseUserToken');
         this.rootRef = new Firebase(firebaseUrl);
@@ -12,42 +40,18 @@ Pusceiver = {
                     $(".hidden-anon").hide();
                 } else {
                     console.log("auth data:", data);
-                    Pusceiver.userRef = Pusceiver.rootRef.child("users/" + data.auth.id);
-                    // users/$uid/items
-                    var itemsRef = Pusceiver.userRef.child("items");
-                    $("#private form").attr("action", itemsRef.path.toString());
-                    itemsRef.on("child_added", function(snapshot, prevChildName) {
-                        var text = $("<pre>").text(snapshot.val()).html(),
-                            html = text.replace(/(https?:\/\/[^\s+]+)/, "<a href='$1'>$1</a>")
-                        $("#private .items").prepend($("<li/>").html(html));
-                    });
-                    // direct room
-                    if (window.location.pathname.match("/rooms/[^/]+")) {
-                        Pusceiver.userRef.child(window.location.pathname).set(1);
-                    }
-                    // rooms
-                    Pusceiver.userRef.child("rooms").on("child_added", function(snapshot) {
-                        // console.log(snapshot.name());
+                    var user_path = "/users/" + data.auth.id;
+                    // private room
+                    Pusceiver.Room.initItems("private", user_path + "/items");
+                    // rooms for the user
+                    Pusceiver.rootRef.child(user_path + "/rooms").on("child_added", function(snapshot) {
                         var room_id = snapshot.name();
-                        var roomPath = "/rooms/" + room_id;
-                        var $tab = $("<li>").append($("<a>").text("room1").attr({"href": roomPath, "data-target": "#" + room_id}));
-                        $("#rooms-tab li:last").before($tab)
-                        var roomRef = Pusceiver.rootRef.child(roomPath + "/items");
-                        var $pane = $("#rooms-pane div.tab-pane:last").clone().removeClass("active").attr("id", room_id);
-                        $pane.find(".room-menu").removeClass("hide");
-                        $pane.find("form").attr("action", roomRef.path.toString());
-                        $pane.find(".items").html("");
-                        $("#rooms-pane div.tab-pane:last").after($pane);
-                        roomRef.on("child_added", function(itemSnapshot) {
-                            console.log("room item added:", itemSnapshot);
-                            var text = $("<pre>").text(itemSnapshot.val()).html(),
-                            html = text.replace(/(https?:\/\/[^\s+]+)/, "<a href='$1'>$1</a>")
-                            $("#" + room_id + " .items").prepend($("<li/>").html(html));
-                        });
-                        if (window.location.pathname == roomPath) {
-                            $("a[href='" + roomPath +  "']").tab('show');
-                        }
+                        Pusceiver.Room.init(room_id);
                     });
+                    // join the room specified in URL
+                    if (window.location.pathname.match("/rooms/[^/]+")) {
+                        Pusceiver.rootRef.child(user_path + window.location.pathname).set(1);
+                    }
                     //
                     $("#user").text("@" + data.auth.nickname);
                     $(".show-anon").hide();
@@ -86,16 +90,6 @@ $(document).on("click", '.nav-tabs a', function (e) {
 // New room
 $("a[href='#new-room']").click(function() {
     var room = Pusceiver.rootRef.child("/rooms").push();
-    Pusceiver.userRef.child("rooms/" + room.name()).set(1);
+    Pusceiver.rootRef.child("rooms/" + room.name()).set(1);
     return false;
 });
-
-// Join room
-// $(function() {
-//     var hash = window.location.hash;
-//     //hash && $('ul.nav a[href="' + hash + '"]').tab('show');
-//     //Pusceiver.rootRef.child("/rooms/" + hash)
-//     if (hash && hash != "private") {
-//         Pusceiver.userRef.child("rooms/" + hash).set(1);
-//     }
-// });
