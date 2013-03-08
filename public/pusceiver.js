@@ -28,7 +28,7 @@ Pusceiver = {
         }
     },
     rootRef: null,
-    //userRef: null,
+    userRef: null,
     init: function(firebaseUrl) {
         var token = $.cookie('firebaseUserToken');
         this.rootRef = new Firebase(firebaseUrl);
@@ -41,16 +41,18 @@ Pusceiver = {
                 } else {
                     console.log("auth data:", data);
                     var user_path = "/users/" + data.auth.id;
+                    Pusceiver.userRef = Pusceiver.rootRef.child(user_path);
                     // private room
                     Pusceiver.Room.initItems("private", user_path + "/items");
                     // rooms for the user
-                    Pusceiver.rootRef.child(user_path + "/rooms").on("child_added", function(snapshot) {
+                    Pusceiver.userRef.child("rooms").on("child_added", function(snapshot) {
                         var room_id = snapshot.name();
                         Pusceiver.Room.init(room_id);
                     });
-                    // join the room specified in URL
-                    if (window.location.pathname.match("/rooms/[^/]+")) {
-                        Pusceiver.rootRef.child(user_path + window.location.pathname).set(1);
+                    // join or switch to the room specified in URL
+                    var match = window.location.pathname.match("/(rooms/[^/]+)");
+                    if (match) {
+                        Pusceiver.userRef.child(match[1]).set(1);
                     }
                     //
                     $("#user").text("@" + data.auth.nickname);
@@ -89,7 +91,9 @@ $(document).on("click", '.nav-tabs a', function (e) {
 
 // New room
 $("a[href='#new-room']").click(function() {
-    var room = Pusceiver.rootRef.child("/rooms").push();
-    Pusceiver.rootRef.child("rooms/" + room.name()).set(1);
+    var room = Pusceiver.rootRef.child("/rooms").push({title: "New room"});
+    var path = "rooms/" + room.name();
+    window.history.pushState(null, null, "/" + path);
+    Pusceiver.userRef.child(path).set(1);
     return false;
 });
