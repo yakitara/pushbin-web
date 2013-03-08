@@ -6,10 +6,21 @@ Pusceiver = {
         initItems: function (room_id, path) {
             var itemsRef = Pusceiver.rootRef.child(path);
             $("#" + room_id + " form").attr("action", path);
-            itemsRef.on("child_added", function(snapshot, prevChildName) {
-                var text = $("<pre>").text(snapshot.val()).html();
+            itemsRef.on("child_added", function(snapshot) {
+                var item_id = snapshot.name();
+                var item = snapshot.val();
+                var text = $("<pre>").text(item.text).html();
                 var html = text.replace(/(https?:\/\/[^\s+]+)/, "<a href='$1'>$1</a>");
-                $("#" + room_id + " .items").prepend($("<li/>").html(html));
+                var $text = $("<div>").addClass("text").html(html);
+                var li = $("<li/>").attr("id", item_id).prepend($text);
+                $("#" + room_id + " .items").prepend(li);
+                if (room_id != "private") {
+                    var $user = $("<div>").addClass("user").text("user" + item.user_id);
+                    li.prepend($user);
+                    Pusceiver.rootRef.child("/users/" + item.user_id + "/nickname").on("value", function(snapshot) {
+                        $("#" + item_id + " .user").text(snapshot.val());
+                    });
+                }
             });
         },
         init: function (room_id) {
@@ -50,6 +61,7 @@ Pusceiver = {
                     console.log("auth data:", data);
                     var user_path = "/users/" + data.auth.id;
                     Pusceiver.userRef = Pusceiver.rootRef.child(user_path);
+                    Pusceiver.userRef.update({"nickname": data.auth.nickname});
                     // private room
                     Pusceiver.Room.initItems("private", user_path + "/items");
                     // rooms for the user
@@ -80,7 +92,12 @@ $(document).on("submit", "#rooms-pane form", function(e) {
     var $form = $(this);
     var $textarea = $form.find("textarea");
     var path = $form.attr("action");
-    Pusceiver.rootRef.child(path).push({".value": $textarea.val(), ".priority": Date.now()}, function(error) {
+    var val = {
+        "text": $textarea.val(),
+        "user_id": Pusceiver.userRef.name(),
+        ".priority": Date.now()
+    };
+    Pusceiver.rootRef.child(path).push(val, function(error) {
         if (!error) {
             $textarea.val("");
         } else {
