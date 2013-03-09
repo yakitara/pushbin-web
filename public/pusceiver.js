@@ -18,7 +18,7 @@ Pusceiver = {
                     var $user = $("<div>").addClass("user").text("user" + item.user_id);
                     li.prepend($user);
                     Pusceiver.rootRef.child("/users/" + item.user_id + "/nickname").on("value", function(snapshot) {
-                        $("#" + item_id + " .user").text(snapshot.val());
+                        $("#" + item_id + " .user").text("@" + snapshot.val());
                     });
                 }
             });
@@ -29,7 +29,8 @@ Pusceiver = {
             var $tab = $("<li>").append($("<a>").attr({"href": path, "data-target": "#" + room_id}));
             $("#rooms-tab li:last").before($tab)
             var $pane = $("#rooms-pane div.tab-pane:last").clone().removeClass("active").attr("id", room_id);
-            $pane.find(".room-menu").removeClass("hide");
+            $pane.find(".share-header").removeClass("hide");
+            $pane.find(".members").html("");
             $pane.find("form").attr("action", path + "/items");
             $pane.find(".items").html("");
             $("#rooms-pane div.tab-pane:last").after($pane);
@@ -40,9 +41,34 @@ Pusceiver = {
                 $("a[href='" + path +  "']").tab('show');
             }
             // title
-            Pusceiver.rootRef.child(path).on("value", function(roomSnapshot) {
+            var roomRef = Pusceiver.rootRef.child(path);
+            roomRef.on("value", function(roomSnapshot) {
                 var room = roomSnapshot.val();
                 $("a[href='" + path +  "']").text(room.title);
+            });
+            // members
+            roomRef.child("members").on("child_added", function(snapshot) {
+                var user_id = snapshot.name();
+                var $member = $("<span>").addClass("user-" + user_id).append($("<i>").addClass("icon-user"), "user" + snapshot.name());
+                if (snapshot.val().online) {
+                    $member.removeClass("offline");
+                } else {
+                    $member.addClass("offline");
+                }
+                $("#" + room_id + " .members").append($member);
+                Pusceiver.rootRef.child("/users/" + user_id + "/nickname").on("value", function(snapshot) {
+                    $("#" + room_id + " .user-" + user_id).text("@" + snapshot.val());
+                });
+            });
+            // online status
+            roomRef.child("members").on("child_changed", function(snapshot) {
+                var user_id = snapshot.name();
+                var $member = $("#" + room_id + " .user-" + user_id);
+                if (snapshot.val().online) {
+                    $member.removeClass("offline");
+                } else {
+                    $member.addClass("offline");
+                }
             });
         }
     },
@@ -68,6 +94,9 @@ Pusceiver = {
                     Pusceiver.userRef.child("rooms").on("child_added", function(snapshot) {
                         var room_id = snapshot.name();
                         Pusceiver.Room.init(room_id);
+                        var memberRef = Pusceiver.rootRef.child("/rooms/" + room_id + "/members/" + data.auth.id);
+                        memberRef.onDisconnect().update({"online": false})
+                        memberRef.update({"online": true})
                     });
                     // join or switch to the room specified in URL
                     var match = window.location.pathname.match("/(rooms/[^/]+)");

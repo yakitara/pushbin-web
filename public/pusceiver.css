@@ -4,3 +4,11 @@
 .hidden-anon {
    display: none;
 }
+
+.members span {
+   margin-right: 1em;
+}
+
+.offline {
+   color: lightgray;
+}
