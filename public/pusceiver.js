@@ -60,6 +60,10 @@ Pusceiver = {
                     $("#" + room_id + " .user-" + user_id).text("@" + snapshot.val());
                 });
             });
+            roomRef.child("members").on("child_removed", function(oldSnapshot) {
+                var user_id = oldSnapshot.name();
+                $("#" + room_id + " .members .user-" + user_id).remove();
+            });
             // online status
             roomRef.child("members").on("child_changed", function(snapshot) {
                 var user_id = snapshot.name();
@@ -176,4 +180,14 @@ $(document).on("submit", "#room-edit form", function(e) {
             $("#room-edit").modal('hide');
         }
     });
+});
+// Leave room
+$(document).on("click", "a[href='#room-leave']", function(e) {
+    var $pane = $(this).closest(".tab-pane").remove();
+    var room_id = $pane.attr("id");
+    $("[data-target='#" + room_id + "']").remove();
+    Pusceiver.userRef.child("rooms/" + room_id).remove(function(error) {
+        $("a[data-target='#private']").tab("show");
+    });
+    return false;
 });
