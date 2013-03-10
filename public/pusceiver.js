@@ -29,7 +29,7 @@ Pusceiver = {
             var $tab = $("<li>").append($("<a>").attr({"href": path, "data-target": "#" + room_id}));
             $("#rooms-tab li:last").before($tab)
             var $pane = $("#rooms-pane div.tab-pane:last").clone().removeClass("active").attr("id", room_id);
-            $pane.find(".share-header").removeClass("hide");
+            $pane.find(".room-header").removeClass("hide");
             $pane.find(".members").html("");
             $pane.find("form").attr("action", path + "/items");
             $pane.find(".items").html("");

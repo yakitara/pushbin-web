@@ -12,3 +12,7 @@
 .offline {
    color: lightgray;
 }
+
+.room-header {
+   height: 25px;
+}
