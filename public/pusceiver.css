@@ -16,3 +16,7 @@
 .room-header {
    height: 25px;
 }
+
+.items li {
+   min-height: 25px;
+}

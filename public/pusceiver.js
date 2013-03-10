@@ -5,22 +5,30 @@ Pusceiver = {
     Room: {
         initItems: function (room_id, path) {
             var itemsRef = Pusceiver.rootRef.child(path);
-            $("#" + room_id + " form").attr("action", path);
+            var $room_pane = $("#" + room_id);
+            $room_pane.find("form").attr("action", path);
             itemsRef.on("child_added", function(snapshot) {
                 var item_id = snapshot.name();
                 var item = snapshot.val();
-                var text = $("<pre>").text(item.text).html();
-                var html = text.replace(/(https?:\/\/[^\s+]+)/, "<a href='$1'>$1</a>");
-                var $text = $("<div>").addClass("text").html(html);
-                var li = $("<li/>").attr("id", item_id).prepend($text);
-                $("#" + room_id + " .items").prepend(li);
+                var $li = $room_pane.find("li.template").clone()
+                    .removeClass("template hide")
+                    .data("path", snapshot.ref().path.toString())
+                    .attr("id", item_id);
+                $room_pane.find(".items").prepend($li);
                 if (room_id != "private") {
                     var $user = $("<div>").addClass("user").text("user" + item.user_id);
-                    li.prepend($user);
+                    $li.append($user);
                     Pusceiver.rootRef.child("/users/" + item.user_id + "/nickname").on("value", function(snapshot) {
                         $("#" + item_id + " .user").text("@" + snapshot.val());
                     });
                 }
+                var text = $("<pre>").text(item.text).html();
+                var html = text.replace(/(https?:\/\/[^\s+]+)/, "<a href='$1'>$1</a>");
+                var $text = $("<div>").addClass("text").html(html);
+                $li.append($text);
+            });
+            itemsRef.on("child_removed", function(snapshot) {
+                $("#" + snapshot.name()).remove();
             });
         },
         init: function (room_id) {
@@ -32,7 +40,7 @@ Pusceiver = {
             $pane.find(".room-header").removeClass("hide");
             $pane.find(".members").html("");
             $pane.find("form").attr("action", path + "/items");
-            $pane.find(".items").html("");
+            $pane.find(".items > li:not(.template)").remove();
             $("#rooms-pane div.tab-pane:last").after($pane);
             // items
             this.initItems(room_id, path + "/items")
@@ -193,6 +201,16 @@ $(document).on("click", "a[href='#room-leave']", function(e) {
     $("[data-target='#" + room_id + "']").remove();
     Pusceiver.userRef.child("rooms/" + room_id).remove(function(error) {
         $("a[data-target='#private']").tab("show");
+    });
+    return false;
+});
+
+$(document).on("click", "a[href='#item-done']", function(e) {
+    //Pusceiver.root
+    var itemRef = Pusceiver.rootRef.child($(this).closest(".item").data("path"));
+    itemRef.transaction(function(data) {
+        itemRef.parent().parent().child("done/" + itemRef.name()).setWithPriority(data, Date.now());
+        return null;
     });
     return false;
 });
