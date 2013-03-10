@@ -100,7 +100,12 @@ Pusceiver = {
                         Pusceiver.Room.init(room_id);
                         var memberRef = Pusceiver.rootRef.child("/rooms/" + room_id + "/members/" + data.auth.id);
                         memberRef.onDisconnect().update({"online": false})
-                        memberRef.update({"online": true})
+                        // memberRef.update({"online": true})
+                        //
+                        Pusceiver.rootRef.child('/.info/connected').on('value', function(snap) {
+                            console.log("connected: " + snap.val());
+                            memberRef.update({"online": snap.val()});
+                        });
                     });
                     // join or switch to the room specified in URL
                     var match = window.location.pathname.match("/(rooms/[^/]+)");
