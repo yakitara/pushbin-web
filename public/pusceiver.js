@@ -125,6 +125,11 @@ Pusceiver = {
                     $(".show-anon").hide();
                     $(".hidden-anon").show();
                 }
+            }, function(error) {
+                // onCancel
+                console.log("onCancel: " + error);
+                $(".show-anon").show();
+                $(".hidden-anon").hide();
             });
         } else {
             $(".show-anon").show();
