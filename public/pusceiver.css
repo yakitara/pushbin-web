@@ -10,13 +10,14 @@
 }
 
 .offline {
-   color: lightgray;
+   color: darkgray;
 }
 
 .room-header {
    height: 25px;
 }
 
-.items li {
+.items > li.item {
    min-height: 25px;
 }
+.item .user { color: darkgray; }
