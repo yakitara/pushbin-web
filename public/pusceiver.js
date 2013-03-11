@@ -22,10 +22,20 @@ Pusceiver = {
                         $("#" + item_id + " .user").text("@" + snapshot.val());
                     });
                 }
-                var text = $("<pre>").text(item.text).html();
-                var html = text.replace(/(https?:\/\/[^\s+]+)/, "<a href='$1'>$1</a>");
-                var $text = $("<div>").addClass("text").html(html);
+                // var text = $("<pre>").text(item.text).html();
+                // var html = text.replace(/(https?:\/\/[^\s+]+)/, "<a href='$1'>$1</a>");
+                // var $text = $("<div>").addClass("text").html(html);
+                var $text = $("<div>").addClass("text");
                 $li.append($text);
+                // text changed
+                snapshot.ref().on("value", function(itemSnapshot) {
+                    var item = itemSnapshot.val()
+                    if (item) {
+                        var text = $("<pre>").text(item.text).html();
+                        var html = text.replace(/(https?:\/\/[^\s+]+)/, "<a href='$1'>$1</a>");
+                        $text.html(html);
+                    }
+                });
             });
             itemsRef.on("child_removed", function(snapshot) {
                 $("#" + snapshot.name()).remove();
@@ -211,11 +221,31 @@ $(document).on("click", "a[href='#room-leave']", function(e) {
 });
 
 $(document).on("click", "a[href='#item-done']", function(e) {
-    //Pusceiver.root
     var itemRef = Pusceiver.rootRef.child($(this).closest(".item").data("path"));
     itemRef.transaction(function(data) {
         itemRef.parent().parent().child("done/" + itemRef.name()).setWithPriority(data, Date.now());
         return null;
     });
     return false;
+});
+$(document).on("click", "a[href='#item-edit']", function(e) {
+    var $item = $(this).closest(".item");
+    if ($item.find(".item-edit").hasClass("hide")) {
+        var path = $item.closest(".item").data("path");
+        var itemRef = Pusceiver.rootRef.child(path);
+        itemRef.on("value", function(snapshot) {
+            $item.find(".item-edit form").attr("action", path);
+            $item.find(".item-edit form textarea").val(snapshot.val().text);
+            $item.find(".text").addClass("hide");
+            $item.find(".item-edit").removeClass("hide");
+            $item.find(".item-edit form textarea").on("keyup", function(e) {
+                var val = $(this).closest("form").serializeObject();
+                itemRef.update(val);
+            });
+        });
+    } else {
+        $item.find(".item-edit form textarea").off("keyup");
+        $item.find(".item-edit").addClass("hide");
+        $item.find(".text").removeClass("hide");
+    }
 });
