@@ -1,3 +1,7 @@
+/* twitter bootstrap, font awsome overrides */
+.btn-small { font-size: 14px }
+
+/* common */
 .show-anon {
    display: none;
 }
@@ -25,7 +29,7 @@ ul.items {
    list-style: none;
    min-height: 25px;
    margin-bottom: 4px;
-   padding: 4px;
+   padding: 8px;
    -webkit-border-radius:3px;
    -moz-border-radius:3px;
    border-radius:3px;
@@ -33,16 +37,14 @@ ul.items {
 .item:hover,.item.active {
    background-color: #eee;
 }
-.item-menu {
-   height: 30px;
-}
+.item-menu { height: 26px; }
 .item .user { color: darkgray; }
 .item .title { margin:0 4px; }
-.item [href='#item-edit'] {
+/*.item [href='#item-edit'] {
    position: absolute;
    top: 8px;
    right: 8px;
-}
+}*/
 .item form { margin: 0; }
 /* open/close item */
 .item:not(.active) .active-show { display:none; }
