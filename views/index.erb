@@ -74,23 +74,28 @@
               <ul class="items">
                 <li class="item template hide activate" onclick="">
                   <div class="user activate"></div>
-                  <div class="text activate"></div>
-                  <div class="item-edit hide">
-                    <form>
-                      <textarea class="input-block-level" name="text"></textarea>
-                    </form>
+                  <div class="active-hide">
+                    <div class="title activate"></div>
                   </div>
-                  <div class="item-menu activate">
-                    <div class="btn-group pull-right">
+                  <div class="active-show">
+                    <div style="position:relative;">
+                      <pre class="text activate edit-hide"></pre>
+                      <form class="edit-show">
+                        <textarea class="input-block-level" name="text"></textarea>
+                      </form>
                       <a class="btn btn-small" href="#item-edit" data-toggle="button">
                         <i class="icon-edit"></i>
                       </a>
-                      <a class="btn btn-small" href="#item-top">
-                        <i class="icon-arrow-up"></i>
-                      </a>
-                      <a class="btn btn-small" href="#item-done">
-                        <i class="icon-check"></i>
-                      </a>
+                    </div>
+                    <div class="item-menu activate">
+                      <div class="pull-right">
+                        <a class="btn btn-small" href="#item-top">
+                          <i class="icon-arrow-up"></i>
+                        </a>
+                        <a class="btn btn-small" href="#item-done">
+                          <i class="icon-check"></i>
+                        </a>
+                      </div>
                     </div>
                   </div>
                 </li>

@@ -36,8 +36,17 @@ ul.items {
 .item-menu {
    height: 30px;
 }
-.item:not(.active) .item-menu {
-   display:none;
-}
 .item .user { color: darkgray; }
+.item .title { margin:0 4px; }
+.item [href='#item-edit'] {
+   position: absolute;
+   top: 8px;
+   right: 8px;
+}
 .item form { margin: 0; }
+/* open/close item */
+.item:not(.active) .active-show { display:none; }
+.item.active .active-hide { display:none; }
+/* show/edit item */
+.item:not(.edit) .edit-show { display:none; }
+.item.edit .edit-hide { display:none; }

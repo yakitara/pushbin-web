@@ -28,6 +28,7 @@ Pusceiver = {
                         var text = $("<pre>").text(item.text).html();
                         var html = text.replace(/(https?:\/\/[^\s+]+)/, "<a href='$1'>$1</a>");
                         $li.find(".text").html(html);
+                        $li.find(".title").html(html.match(/(.*)\n?/)[1]);
                     }
                 });
             });
@@ -240,23 +241,20 @@ $(document).on("click", "a[href='#item-done']", function(e) {
 // edit an item
 $(document).on("click", "a[href='#item-edit']", function(e) {
     var $item = $(this).closest(".item");
-    if ($item.find(".item-edit").hasClass("hide")) {
-        var path = $item.closest(".item").data("path");
-        var itemRef = Pusceiver.rootRef.child(path);
+    var $textarea = $item.find("textarea[name='text']");
+    if (!$item.hasClass("edit")) {
+        var itemRef = Pusceiver.rootRef.child($item.data("path"));
         itemRef.once("value", function(snapshot) {
-            $item.find(".item-edit form").attr("action", path);
-            $item.find(".item-edit form textarea").val(snapshot.val().text);
-            $item.find(".text").addClass("hide");
-            $item.find(".item-edit").removeClass("hide");
-            $item.find(".item-edit form textarea").on("keyup", function(e) {
+            $textarea.val(snapshot.val().text);
+            $textarea.on("keyup", function(e) {
                 var val = $(this).closest("form").serializeObject();
                 itemRef.update(val);
             });
+            $item.addClass("edit");
         });
     } else {
-        $item.find(".item-edit form textarea").off("keyup");
-        $item.find(".item-edit").addClass("hide");
-        $item.find(".text").removeClass("hide");
+        $textarea.off("keyup");
+        $item.removeClass("edit");
     }
     return false;
 });
