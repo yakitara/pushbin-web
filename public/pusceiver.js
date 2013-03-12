@@ -16,8 +16,9 @@ Pusceiver = {
                     .attr("id", item_id);
                 $room_pane.find(".items").prepend($li);
                 if (room_id != "private") {
-                    var $user = $("<div>").addClass("user").text("user" + item.user_id);
-                    $li.append($user);
+                    $li.find(".user").text("user" + item.user_id);
+                    //var $user = $("<div>").addClass("user").text("user" + item.user_id);
+                    //$li.append($user);
                     Pusceiver.rootRef.child("/users/" + item.user_id + "/nickname").on("value", function(snapshot) {
                         $("#" + item_id + " .user").text("@" + snapshot.val());
                     });
@@ -25,15 +26,15 @@ Pusceiver = {
                 // var text = $("<pre>").text(item.text).html();
                 // var html = text.replace(/(https?:\/\/[^\s+]+)/, "<a href='$1'>$1</a>");
                 // var $text = $("<div>").addClass("text").html(html);
-                var $text = $("<div>").addClass("text");
-                $li.append($text);
+                //var $text = $("<div>").addClass("text");
+                //$li.append($text);
                 // text changed
                 snapshot.ref().on("value", function(itemSnapshot) {
                     var item = itemSnapshot.val()
                     if (item) {
                         var text = $("<pre>").text(item.text).html();
                         var html = text.replace(/(https?:\/\/[^\s+]+)/, "<a href='$1'>$1</a>");
-                        $text.html(html);
+                        $li.find(".text").html(html);
                     }
                 });
             });
@@ -219,7 +220,7 @@ $(document).on("click", "a[href='#room-leave']", function(e) {
     });
     return false;
 });
-
+// done item
 $(document).on("click", "a[href='#item-done']", function(e) {
     var itemRef = Pusceiver.rootRef.child($(this).closest(".item").data("path"));
     itemRef.transaction(function(data) {
@@ -228,12 +229,13 @@ $(document).on("click", "a[href='#item-done']", function(e) {
     });
     return false;
 });
+// edit item
 $(document).on("click", "a[href='#item-edit']", function(e) {
     var $item = $(this).closest(".item");
     if ($item.find(".item-edit").hasClass("hide")) {
         var path = $item.closest(".item").data("path");
         var itemRef = Pusceiver.rootRef.child(path);
-        itemRef.on("value", function(snapshot) {
+        itemRef.once("value", function(snapshot) {
             $item.find(".item-edit form").attr("action", path);
             $item.find(".item-edit form textarea").val(snapshot.val().text);
             $item.find(".text").addClass("hide");
@@ -248,4 +250,14 @@ $(document).on("click", "a[href='#item-edit']", function(e) {
         $item.find(".item-edit").addClass("hide");
         $item.find(".text").removeClass("hide");
     }
+    return false;
+});
+// select item
+$(document).on("click", ".item", function(e) {
+    if (!$(this).find("[href='#item-edit']").hasClass("active")) {
+        if ($(e.target).hasClass("activate")) {
+            $(this).toggleClass("active");
+        }
+    }
+    return false;
 });

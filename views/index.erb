@@ -56,7 +56,7 @@
             <div class="tab-pane active" id="private">
               <div class="room-header hide">
                 <div class="dropdown pull-right room-menu">
-                  <a class="btn btn-mini" data-toggle="dropdown">
+                  <a class="btn btn-small" data-toggle="dropdown">
                     <i class="icon-cog"></i>
                   </a>
                   <ul class="dropdown-menu">
@@ -72,21 +72,23 @@
                 <input type="submit" class="btn" value="push" />
               </form>
               <ul class="items">
-                <li class="item template hide">
-                  <div class="dropdown pull-right item-menu">
-                    <a class="btn btn-mini" data-toggle="dropdown">
-                      <i class="icon-cog"></i>
-                    </a>
-                    <ul class="dropdown-menu">
-                      <li><a href="#item-edit">Edit</a></li>
-                      <li class="divider"></li>
-                      <li><a href="#item-done">Done</a></li>
-                    </ul>
-                  </div>
+                <li class="item template hide activate" onclick="">
+                  <div class="user activate"></div>
+                  <div class="text activate"></div>
                   <div class="item-edit hide">
                     <form>
                       <textarea class="input-block-level" name="text"></textarea>
                     </form>
+                  </div>
+                  <div class="item-menu activate">
+                    <div class="btn-group pull-right">
+                      <a class="btn btn-small" href="#item-edit" data-toggle="button">
+                        <i class="icon-edit"></i>
+                      </a>
+                      <a class="btn btn-small" href="#item-done">
+                        <i class="icon-check"></i>
+                      </a>
+                    </div>
                   </div>
                 </li>
               </ul>

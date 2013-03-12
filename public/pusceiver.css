@@ -17,7 +17,23 @@
    height: 25px;
 }
 
+/* items */
+ul.items {
+   margin-left: 0;
+}
 .items > li.item {
+   list-style: none;
    min-height: 25px;
+   margin-bottom: 4px;
+}
+.item:hover,.item.active {
+   background-color: #eee;
+}
+.item-menu {
+   height: 30px;
+}
+.item:not(.active) .item-menu {
+   display:none;
 }
 .item .user { color: darkgray; }
+.item form { margin: 0; }
