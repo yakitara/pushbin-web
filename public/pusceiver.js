@@ -17,17 +17,10 @@ Pusceiver = {
                 $room_pane.find(".items").prepend($li);
                 if (room_id != "private") {
                     $li.find(".user").text("user" + item.user_id);
-                    //var $user = $("<div>").addClass("user").text("user" + item.user_id);
-                    //$li.append($user);
                     Pusceiver.rootRef.child("/users/" + item.user_id + "/nickname").on("value", function(snapshot) {
                         $("#" + item_id + " .user").text("@" + snapshot.val());
                     });
                 }
-                // var text = $("<pre>").text(item.text).html();
-                // var html = text.replace(/(https?:\/\/[^\s+]+)/, "<a href='$1'>$1</a>");
-                // var $text = $("<div>").addClass("text").html(html);
-                //var $text = $("<div>").addClass("text");
-                //$li.append($text);
                 // text changed
                 snapshot.ref().on("value", function(itemSnapshot) {
                     var item = itemSnapshot.val()
@@ -38,6 +31,7 @@ Pusceiver = {
                     }
                 });
             });
+            // on child_removed
             itemsRef.on("child_removed", function(snapshot) {
                 $("#" + snapshot.name()).remove();
             });
@@ -220,7 +214,17 @@ $(document).on("click", "a[href='#room-leave']", function(e) {
     });
     return false;
 });
-// done item
+
+// select an item
+$(document).on("click", ".item", function(e) {
+    if (!$(this).find("[href='#item-edit']").hasClass("active")) {
+        if ($(e.target).hasClass("activate")) {
+            $(this).toggleClass("active");
+        }
+    }
+    return false;
+});
+// make an item done
 $(document).on("click", "a[href='#item-done']", function(e) {
     var itemRef = Pusceiver.rootRef.child($(this).closest(".item").data("path"));
     itemRef.transaction(function(data) {
@@ -229,7 +233,7 @@ $(document).on("click", "a[href='#item-done']", function(e) {
     });
     return false;
 });
-// edit item
+// edit an item
 $(document).on("click", "a[href='#item-edit']", function(e) {
     var $item = $(this).closest(".item");
     if ($item.find(".item-edit").hasClass("hide")) {
@@ -252,12 +256,4 @@ $(document).on("click", "a[href='#item-edit']", function(e) {
     }
     return false;
 });
-// select item
-$(document).on("click", ".item", function(e) {
-    if (!$(this).find("[href='#item-edit']").hasClass("active")) {
-        if ($(e.target).hasClass("activate")) {
-            $(this).toggleClass("active");
-        }
-    }
-    return false;
 });
