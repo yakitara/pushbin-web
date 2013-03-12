@@ -1,4 +1,11 @@
 /* twitter bootstrap, font awsome overrides */
+@media (max-width: 767px) {
+   body {
+      padding-left: 8px;
+      padding-right: 8px;
+   }
+}
+
 .btn-small { font-size: 14px }
 
 /* common */
