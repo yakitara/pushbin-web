@@ -25,6 +25,10 @@ ul.items {
    list-style: none;
    min-height: 25px;
    margin-bottom: 4px;
+   padding: 4px;
+   -webkit-border-radius:3px;
+   -moz-border-radius:3px;
+   border-radius:3px;
 }
 .item:hover,.item.active {
    background-color: #eee;
