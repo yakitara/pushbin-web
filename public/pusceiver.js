@@ -35,6 +35,10 @@ Pusceiver = {
             itemsRef.on("child_removed", function(snapshot) {
                 $("#" + snapshot.name()).remove();
             });
+            // on child_moved
+            itemsRef.on("child_moved", function(snapshot, prevChildName) {
+                $room_pane.find(".items").prepend($("#" + snapshot.name()).detach());
+            });
         },
         init: function (room_id) {
             var path = "/rooms/" + room_id;
@@ -256,4 +260,8 @@ $(document).on("click", "a[href='#item-edit']", function(e) {
     }
     return false;
 });
+// move an item to top
+$(document).on("click", "a[href='#item-top']", function(e) {
+    var itemRef = Pusceiver.rootRef.child($(this).closest(".item").data("path"));
+    itemRef.setPriority(Date.now());
 });
