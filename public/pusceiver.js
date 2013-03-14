@@ -4,9 +4,10 @@
 Pusceiver = {
     Room: {
         initItems: function (room_id, path) {
-            var itemsRef = Pusceiver.rootRef.child(path);
             var $room_pane = $("#" + room_id);
             $room_pane.find("form").attr("action", path);
+            var start = 1;
+            var itemsRef = Pusceiver.rootRef.child(path).startAt(start).endAt(start + 1);
             itemsRef.on("child_added", function(snapshot) {
                 var item_id = snapshot.name();
                 var item = snapshot.val();
@@ -156,7 +157,7 @@ $(document).on("submit", "#rooms-pane form", function(e) {
     var val = {
         "text": $textarea.val(),
         "user_id": Pusceiver.userRef.name(),
-        ".priority": Date.now()
+        ".priority": Number("1." + Date.now())
     };
     Pusceiver.rootRef.child(path).push(val, function(error) {
         if (!error) {
@@ -232,10 +233,16 @@ $(document).on("click", ".item", function(e) {
 // make an item done
 $(document).on("click", "a[href='#item-done']", function(e) {
     var itemRef = Pusceiver.rootRef.child($(this).closest(".item").data("path"));
-    itemRef.transaction(function(data) {
-        itemRef.parent().parent().child("done/" + itemRef.name()).setWithPriority(data, Date.now());
-        return null;
+    var priority = -1 + Number("0." + Date.now());
+    itemRef.setPriority(priority, function(error) {
+        if (error) {
+            console.log(error);
+        }
     });
+    // itemRef.transaction(function(data) {
+    //     itemRef.parent().parent().child("done/" + itemRef.name()).setWithPriority(data, Date.now());
+    //     return null;
+    // });
     return false;
 });
 // edit an item
@@ -261,5 +268,10 @@ $(document).on("click", "a[href='#item-edit']", function(e) {
 // move an item to top
 $(document).on("click", "a[href='#item-top']", function(e) {
     var itemRef = Pusceiver.rootRef.child($(this).closest(".item").data("path"));
-    itemRef.setPriority(Date.now());
+    var priority = Number("1." + Date.now())
+    itemRef.setPriority(priority, function(error) {
+        if (error) {
+            console.log(error);
+        }
+    });
 });
