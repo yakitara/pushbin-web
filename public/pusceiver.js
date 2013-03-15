@@ -104,8 +104,7 @@ Pusceiver = {
             this.rootRef.auth(token, function(error, data) {
                 if (error) {
                     console.log("auth failed:", error);
-                    $(".show-anon").show();
-                    $(".hidden-anon").hide();
+                    $("body").removeClass("is-loggedin");
                 } else {
                     console.log("auth data:", data);
                     var user_path = "/users/" + data.auth.id;
@@ -133,18 +132,15 @@ Pusceiver = {
                     }
                     //
                     $("#user").text("@" + data.auth.nickname);
-                    $(".show-anon").hide();
-                    $(".hidden-anon").show();
+                    $("body").addClass("is-loggedin");
                 }
             }, function(error) {
                 // onCancel
                 console.log("onCancel: " + error);
-                $(".show-anon").show();
-                $(".hidden-anon").hide();
+                $("body").removeClass("is-loggedin");
             });
         } else {
-            $(".show-anon").show();
-            $(".hidden-anon").hide();
+            $("body").removeClass("is-loggedin");
         }
     }
 };

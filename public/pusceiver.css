@@ -9,13 +9,11 @@
 .btn-small { font-size: 14px }
 
 /* common */
-.show-anon {
-   display: none;
-}
-.hidden-anon {
-   display: none;
-}
+.template { display: none; }
+body:not(.is-loggedin) .show-loggedin { display:none; }
+body.is-loggedin .hide-loggedin { display:none; }
 
+/* room */
 .members span {
    margin-right: 1em;
 }
