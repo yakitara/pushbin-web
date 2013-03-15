@@ -1,23 +1,48 @@
 // Reuirements (versions are used for development)
 // - jQuery 1.9.1
 // - Twitter bootstrap 2.3.1
+$.fn.pill = function(action) {
+    if (action == "show") {
+        var $pill = this.closest("li");
+        var $pane = $($(this).data("target"));
+        $pill.add($pane).addClass("active").siblings().removeClass("active");
+    }
+};
+
 Pusceiver = {
+    rootRef: null,
+    userRef: null,
     Room: {
         initItems: function (room_id, path) {
-            var $room_pane = $("#" + room_id);
-            $room_pane.find("form").attr("action", path);
-            var start = 1;
+            $("#" + room_id).find(".nav-pills.item-states > li").each(function() {
+                var $pill = $(this);
+                var state = $pill.find("a").attr("href");
+                var pane_id = room_id + "_" + state;
+                $pill.find("a").attr("data-target", "#" + pane_id);
+                var $room_pane = $pill.closest(".tab-pane.room");
+                var $pane = $room_pane.find(".pill-pane.item-state.template").clone()
+                    .removeClass("template")
+                    .attr("id", pane_id);
+                $room_pane.find(".pill-content.item-states").append($pane);
+                var start = Number($pill.data("start"));
+                Pusceiver.Room.initStateItems(room_id, path, $pane, start);
+            });
+            $(room_id + "_backlog").addClass("active");
+            // this.initStateItems(room_id, path, 1);
+        },
+        initStateItems: function (room_id, path, $pane, start) {
+            //var $room_pane = $("#" + room_id);
             var itemsRef = Pusceiver.rootRef.child(path).startAt(start).endAt(start + 1);
             itemsRef.on("child_added", function(snapshot) {
                 var item_id = snapshot.name();
                 var item = snapshot.val();
-                var $li = $room_pane.find("li.template").clone()
+                var $item = $pane.find("li.item.template").clone()
                     .removeClass("template hide")
                     .data("path", snapshot.ref().path.toString())
                     .attr("id", item_id);
-                $room_pane.find(".items").prepend($li);
+                $pane.find(".items").prepend($item);
                 if (room_id != "private") {
-                    $li.find(".user").text("user" + item.user_id);
+                    $item.find(".user").text("user" + item.user_id);
                     Pusceiver.rootRef.child("/users/" + item.user_id + "/nickname").on("value", function(snapshot) {
                         $("#" + item_id + " .user").text("@" + snapshot.val());
                     });
@@ -28,8 +53,8 @@ Pusceiver = {
                     if (item) {
                         var text = $("<pre>").text(item.text).html();
                         var html = text.replace(/(https?:\/\/[^\s+]+)/, "<a href='$1'>$1</a>");
-                        $li.find(".text").html(html);
-                        $li.find(".title").html(html.match(/(.*)\n?/)[1]);
+                        $item.find(".text").html(html);
+                        $item.find(".title").html(html.match(/(.*)\n?/)[1]);
                     }
                 });
             });
@@ -39,31 +64,41 @@ Pusceiver = {
             });
             // on child_moved
             itemsRef.on("child_moved", function(snapshot, prevChildName) {
-                $room_pane.find(".items").prepend($("#" + snapshot.name()).detach());
+                $pane.find(".items").prepend($("#" + snapshot.name()).detach());
             });
         },
-        init: function (room_id) {
-            var path = "/rooms/" + room_id;
+        init: function (room_id, path) {
+            // var path = "/rooms/" + room_id + "/";
             // clone tab for the room
-            var $tab = $("<li>").append($("<a>").attr({"href": path, "data-target": "#" + room_id}));
-            $("#rooms-tab li:last").before($tab)
-            var $pane = $("#rooms-pane div.tab-pane:last").clone().removeClass("active").attr("id", room_id);
+            // var $tab = $("<li>").append($("<a>").attr({"href": path, "data-target": "#" + room_id}));
+            // $("#rooms-tab li:last").before($tab)
+            var $tab = $("ul#rooms-tabs > li.template").clone().removeClass("template");
+            $tab.find("a").attr("href", path).attr("data-target", "#" + room_id);
+            $("#rooms-tabs > li:last").before($tab);
+            var $pane = $("#rooms-pane .tab-pane.room.template").clone()
+                .removeClass("template")
+                .attr("id", room_id);
             $pane.find(".room-header").removeClass("hide");
             $pane.find(".members").html("");
             $pane.find("form").attr("action", path + "/items");
             $pane.find(".items > li:not(.template)").remove();
             $("#rooms-pane div.tab-pane:last").after($pane);
             // items
-            this.initItems(room_id, path + "/items")
+            this.initItems(room_id, path + "/items");
             // Switch to the room if the URL matched
-            if (window.location.pathname == path) {
-                $("a[href='" + path +  "']").tab('show');
+            //if (window.location.pathname.indexOf(path) == 0) {
+            var match = window.location.pathname.match(path + "(.*)");
+            if (match) {
+                $tab.find("a").tab('show');
+                //console.log(match[1]);
+                $pane.find(".nav-pills.item-states a[href='" + match[1] + "']").pill("show");
             }
             // title
+            $tab.find("a").text(room_id);
             var roomRef = Pusceiver.rootRef.child(path);
             roomRef.on("value", function(roomSnapshot) {
                 var room = roomSnapshot.val();
-                $("a[href='" + path +  "']").text(room.title);
+                $tab.find("a").text(room.title);
             });
             // members
             roomRef.child("members").on("child_added", function(snapshot) {
@@ -95,8 +130,11 @@ Pusceiver = {
             });
         }
     },
-    rootRef: null,
-    userRef: null,
+    User: {
+        init: function(auth) {
+            
+        }
+    },
     init: function(firebaseUrl) {
         var token = $.cookie('firebaseUserToken');
         this.rootRef = new Firebase(firebaseUrl);
@@ -111,11 +149,13 @@ Pusceiver = {
                     Pusceiver.userRef = Pusceiver.rootRef.child(user_path);
                     Pusceiver.userRef.update({"nickname": data.auth.nickname});
                     // private room
-                    Pusceiver.Room.initItems("private", user_path + "/items");
+                    //$("#private form").attr("action", user_path + "/items");
+                    //Pusceiver.Room.initItems("private", user_path + "/items");
+                    Pusceiver.Room.init("private", user_path + "/items/");
                     // rooms for the user
                     Pusceiver.userRef.child("rooms").on("child_added", function(snapshot) {
                         var room_id = snapshot.name();
-                        Pusceiver.Room.init(room_id);
+                        Pusceiver.Room.init(room_id, "/rooms/" + room_id + "/");
                         var memberRef = Pusceiver.rootRef.child("/rooms/" + room_id + "/members/" + data.auth.id);
                         memberRef.onDisconnect().update({"online": false})
                         // memberRef.update({"online": true})
@@ -214,6 +254,18 @@ $(document).on("click", "a[href='#room-leave']", function(e) {
     Pusceiver.userRef.child("rooms/" + room_id).remove(function(error) {
         $("a[data-target='#private']").tab("show");
     });
+    return false;
+});
+
+// Switch states
+$(document).on("click", '.nav-pills a', function (e) {
+    // No e.preventDefault() here
+    e.preventDefault();
+    window.history.pushState(null, null, $(this).attr("href"));
+    $(this).pill('show');
+    // var $pill = $(this).closest("li");
+    // var $pane = $($(this).data("target"));
+    // $pill.add($pane).addClass("active").siblings().removeClass("active");
     return false;
 });
 

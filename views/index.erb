@@ -47,13 +47,13 @@
       <div class="row">
         <div class="span8 show-loggedin">
           <ul class="nav nav-tabs" id="rooms-tabs">
-            <li class="active dropdown">
+            <li class="template">
               <a href="/" data-target="#private">Private</a>
             </li>
             <li><a href="#new-room"><i class="icon-plus"></i></a></li>
           </ul>
           <div class="tab-content" id="rooms-pane">
-            <div class="tab-pane active" id="private">
+            <div class="tab-pane room template">
               <div class="room-header hide">
                 <div class="dropdown pull-right room-menu">
                   <a class="btn btn-small" data-toggle="dropdown">
@@ -73,33 +73,47 @@
                   <input type="submit" class="btn btn-primary pull-right" value="push" />
                 </div>
               </form>
-              <ul class="items">
-                <li class="item template hide activate" onclick="">
-                  <div class="user activate"></div>
-                  <div class="active-hide">
-                    <div class="title activate"></div>
-                  </div>
-                  <div class="active-show">
-                    <pre class="text activate edit-hide"></pre>
-                    <form class="edit-show">
-                      <textarea class="input-block-level" name="text"></textarea>
-                    </form>
-                    <div class="item-menu activate">
-                      <div class="pull-right">
-                        <a class="btn btn-small" href="#item-edit" data-toggle="button">
-                          <i class="icon-edit"></i>
-                        </a>
-                        <a class="btn btn-small" href="#item-top">
-                          <i class="icon-arrow-up"></i>
-                        </a>
-                        <a class="btn btn-small btn-danger" href="#item-done">
-                          <i class="icon-check"></i>
-                        </a>
-                      </div>
-                    </div>
-                  </div>
+
+              <ul class="nav nav-pills item-states">
+                <li data-start="-1"><a href="done">Done</a></li>
+                <li data-start="0"><a href="current">Current</a></li>
+                <li data-start="1" class="active">
+                  <a href="backlog">Backlog</a>
                 </li>
+                <li data-start="2"><a href="icebox">Icebox</a></li>
               </ul>
+
+              <div class="pill-content item-states">
+                <div class="pill-pane item-state template" id="">
+                  <ul class="items">
+                    <li class="item template activate" onclick="">
+                      <div class="user activate"></div>
+                      <div class="active-hide">
+                        <div class="title activate"></div>
+                      </div>
+                      <div class="active-show">
+                        <pre class="text activate edit-hide"></pre>
+                        <form class="edit-show">
+                          <textarea class="input-block-level" name="text"></textarea>
+                        </form>
+                        <div class="item-menu activate">
+                          <div class="pull-right">
+                            <a class="btn btn-small" href="#item-edit" data-toggle="button">
+                              <i class="icon-edit"></i>
+                            </a>
+                            <a class="btn btn-small" href="#item-top">
+                              <i class="icon-arrow-up"></i>
+                            </a>
+                            <a class="btn btn-small btn-danger" href="#item-done">
+                              <i class="icon-check"></i>
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
         </div>
