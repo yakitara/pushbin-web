@@ -34,13 +34,20 @@ Pusceiver.Room.initStateItems = function (room_id, path, $pane, start) {
     //var $room_pane = $("#" + room_id);
     var itemsRef = Pusceiver.rootRef.child(path).startAt(start).endAt(start + 1);
     itemsRef.on("child_added", function(snapshot) {
+        console.log("item added: " + snapshot.name());
         var item_id = snapshot.name();
-        var item = snapshot.val();
-        var $item = $pane.find("li.item.template").clone()
+        var $item = $("#" + item_id);
+        // move from other states
+        if ($item.length > 0) {
+            $item.detach().prependTo($pane.find(".items"));
+            return;
+        }
+        $item = $pane.find("li.item.template").clone()
             .removeClass("template hide")
             .data("path", snapshot.ref().path.toString())
             .attr("id", item_id);
         $pane.find(".items").prepend($item);
+        var item = snapshot.val();
         if (room_id != "private") {
             $item.find(".user").text("user" + item.user_id);
             Pusceiver.rootRef.child("/users/" + item.user_id + "/nickname").on("value", function(snapshot) {
@@ -59,11 +66,14 @@ Pusceiver.Room.initStateItems = function (room_id, path, $pane, start) {
         });
     });
     // on child_removed
-    itemsRef.on("child_removed", function(snapshot) {
-        $("#" + snapshot.name()).remove();
-    });
+    // NOTE: disabled because removing an item from a state cause adding to another state
+    // itemsRef.on("child_removed", function(snapshot) {
+    //     console.log("item removed: " + snapshot.name());
+    //     $("#" + snapshot.name()).remove();
+    // });
     // on child_moved
     itemsRef.on("child_moved", function(snapshot, prevChildName) {
+        console.log("item moved: " + snapshot.name());
         $pane.find(".items").prepend($("#" + snapshot.name()).detach());
     });
 }
