@@ -29,6 +29,7 @@ body.is-loggedin .hide-loggedin { display:none; }
 /* items */
 ul.items {
    margin-left: 0;
+   padding-bottom: 120px;
 }
 .items > li.item {
    list-style: none;

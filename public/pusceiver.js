@@ -32,7 +32,7 @@ Pusceiver.Room.initItems = function (room_id, path) {
 }
 Pusceiver.Room.initStateItems = function (room_id, path, $pane, start) {
     //var $room_pane = $("#" + room_id);
-    var itemsRef = Pusceiver.rootRef.child(path).startAt(start).endAt(start + 1);
+    var itemsRef = Pusceiver.rootRef.child(path).startAt(start).endAt(start + 0.9);
     itemsRef.on("child_added", function(snapshot) {
         console.log("item added: " + snapshot.name());
         var item_id = snapshot.name();
@@ -291,18 +291,14 @@ $(document).on("click", ".item", function(e) {
     return false;
 });
 // make an item done
-$(document).on("click", "a[href='#item-done']", function(e) {
+$(document).on("click", "a[href='#item-move']", function(e) {
     var itemRef = Pusceiver.rootRef.child($(this).closest(".item").data("path"));
-    var priority = -1 + Number("0." + Date.now());
+    var priority = Number($(this).data("start")) + Number("0." + Date.now());
     itemRef.setPriority(priority, function(error) {
         if (error) {
             console.log(error);
         }
     });
-    // itemRef.transaction(function(data) {
-    //     itemRef.parent().parent().child("done/" + itemRef.name()).setWithPriority(data, Date.now());
-    //     return null;
-    // });
     return false;
 });
 // edit an item
