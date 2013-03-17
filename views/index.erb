@@ -87,14 +87,14 @@
                 <div class="pill-pane item-state template" id="">
                   <ul class="items">
                     <li class="item template activate" onclick="">
-                      <div class="user activate"></div>
+                      <div class="user activate" data-name="user_id:/users/$/nickname"></div>
                       <div class="active-hide">
-                        <div class="title activate"></div>
+                        <div class="title activate" data-name="text|first_line|auto_link|safe"></div>
                       </div>
                       <div class="active-show">
-                        <pre class="text activate edit-hide"></pre>
+                        <pre class="text activate edit-hide" data-name="text|auto_link|safe"></pre>
                         <form class="edit-show">
-                          <textarea class="input-block-level" name="text" rows="8"></textarea>
+                          <textarea class="input-block-level" name="text" rows="8" data-name="text"></textarea>
                         </form>
                         <div class="item-menu activate">
                           <div>
@@ -163,6 +163,7 @@
     <script type='text/javascript' src='https://cdn.firebase.com/v0/firebase.js'></script>
     <!--<script type='text/javascript' src='https://cdn.firebase.com/v0/firebase-auth-client.js'></script>-->
     <script type='text/javascript' src='/serialize_object.js'></script>
+    <script type='text/javascript' src='/andon.js'></script>
     <script type='text/javascript' src='/pusceiver.js'></script>
     <script type='text/javascript'>
       Pusceiver.init('<%= firebase_url %>');

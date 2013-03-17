@@ -9,6 +9,14 @@ $.fn.pill = function(action) {
     }
 };
 
+Andon.registerFilter("first_line", function(val) {
+    return val.match(/(.*)\n?/)[1];
+});
+Andon.registerFilter("auto_link", function(val) {
+    var text = $("<pre>").text(val).html();
+    return text.replace(/(https?:\/\/[^\s+]+)/, "<a href='$1'>$1</a>");
+});
+
 Pusceiver = {
     rootRef: null,
     userRef: null,
@@ -26,56 +34,9 @@ Pusceiver.Room.initItems = function (room_id, path) {
             .attr("id", pane_id);
         $room_pane.find(".pill-content.item-states").append($pane);
         var start = Number($pill.data("start"));
-        Pusceiver.Room.initStateItems(room_id, path, $pane, start);
+        Andon.bind($pane.find(".items"), Pusceiver.rootRef.child(path).startAt(start).endAt(start + 0.9));
     });
     $(room_id + "_backlog").addClass("active");
-}
-Pusceiver.Room.initStateItems = function (room_id, path, $pane, start) {
-    //var $room_pane = $("#" + room_id);
-    var itemsRef = Pusceiver.rootRef.child(path).startAt(start).endAt(start + 0.9);
-    itemsRef.on("child_added", function(snapshot) {
-        console.log("item added: " + snapshot.name());
-        var item_id = snapshot.name();
-        var $item = $("#" + item_id);
-        // move from other states
-        if ($item.length > 0) {
-            $item.detach().prependTo($pane.find(".items"));
-            return;
-        }
-        $item = $pane.find("li.item.template").clone()
-            .removeClass("template hide")
-            .data("path", snapshot.ref().path.toString())
-            .attr("id", item_id);
-        $pane.find(".items").prepend($item);
-        var item = snapshot.val();
-        if (room_id != "private") {
-            $item.find(".user").text("user" + item.user_id);
-            Pusceiver.rootRef.child("/users/" + item.user_id + "/nickname").on("value", function(snapshot) {
-                $("#" + item_id + " .user").text("@" + snapshot.val());
-            });
-        }
-        // text changed
-        snapshot.ref().on("value", function(itemSnapshot) {
-            var item = itemSnapshot.val()
-            if (item) {
-                var text = $("<pre>").text(item.text).html();
-                var html = text.replace(/(https?:\/\/[^\s+]+)/, "<a href='$1'>$1</a>");
-                $item.find(".text").html(html);
-                $item.find(".title").html(html.match(/(.*)\n?/)[1]);
-            }
-        });
-    });
-    // on child_removed
-    // NOTE: disabled because removing an item from a state cause adding to another state
-    // itemsRef.on("child_removed", function(snapshot) {
-    //     console.log("item removed: " + snapshot.name());
-    //     $("#" + snapshot.name()).remove();
-    // });
-    // on child_moved
-    itemsRef.on("child_moved", function(snapshot, prevChildName) {
-        console.log("item moved: " + snapshot.name());
-        $pane.find(".items").prepend($("#" + snapshot.name()).detach());
-    });
 }
 Pusceiver.Room.init = function (room_id, path) {
     // var path = "/rooms/" + room_id + "/";
@@ -290,7 +251,7 @@ $(document).on("click", ".item", function(e) {
     }
     return false;
 });
-// make an item done
+// Change an item status
 $(document).on("click", "a[href='#item-move']", function(e) {
     var itemRef = Pusceiver.rootRef.child($(this).closest(".item").data("path"));
     var priority = Number($(this).data("start")) + Number("0." + Date.now());
@@ -324,10 +285,12 @@ $(document).on("click", "a[href='#item-edit']", function(e) {
 // move an item to top
 $(document).on("click", "a[href='#item-top']", function(e) {
     var itemRef = Pusceiver.rootRef.child($(this).closest(".item").data("path"));
-    var priority = Number("1." + Date.now())
-    itemRef.setPriority(priority, function(error) {
-        if (error) {
-            console.log(error);
-        }
+    itemRef.on("value", function(snapshot) {
+        var priority = Math.floor(snapshot.getPriority()) + Number("0." + Date.now());
+        itemRef.setPriority(priority, function(error) {
+            if (error) {
+                console.log(error);
+            }
+        });
     });
 });
