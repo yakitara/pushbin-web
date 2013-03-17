@@ -1,14 +1,12 @@
 /*
   Andon.js - Bind DOM with Firebase
 
-
   Requirements: jQuery and firebase.js
 
   TODO: Form support
   TODO: on("value") for a single object
   TODO: on("child_removed) for a list
   TODO: The data attribute name "data-name" doesn't seem to be appropriate? "data-andon"?
-  TODO: jQuery independent (For prototyping it's easy to use jQuery, so I use jQuery so far, but some user don't want jQuery.
 
   Author: Hiroshi Saito <hiroshi3110@gmail.com>
   License: CC BY 2.0
@@ -40,14 +38,29 @@ Andon = {
     <style type="text/stylesheet">
       .template { display:none; }
     </style>
+    
     <ul id="comments">
       <li class="template">
         <span data-name="user"></span>
         <pre data-name="text"></pre>
       </li>
     </ul>
+    
+    <form id="comment-post" method="POST">
+      <input type="text" name="user" />
+      <textarea name="text"></textarea>
+      <input type="submit">
+    </form>
+    
+    <script type='text/javascript' src='http://code.jquery.com/jquery-1.9.1.min.js'></script>
+    <script type='text/javascript' src='https://cdn.firebase.com/v0/firebase.js'></script>
+    <script type='text/javascript' src='andon.js'></script>
     <script type="text/javascript">
-      Andon.bind($("#comments"), new Firebase("https://yourdb.firebaseio-demo.com/comments"));
+      var firebase = new Firebase("https://yourdb.firebaseio-demo.com/comments");
+      Andon.bind($("#comments"), firebase);
+      Andon.form($("#comment-post"), firebase, {before: function(val) {
+        val[".priority"] = Date.now();
+      }});
     </script>
 
   Arguments:
@@ -129,6 +142,31 @@ Andon.bind = function ($target, firebase, options) {
     }
 }
 /*
+  Forms
+
+  options:
+    before: function(val)
+*/
+Andon.form = function ($form, firebase, options) {
+    var path = firebase.path.toString();
+    $form.attr("action", path);
+    $form.on("submit", function(e) {
+        var form = this;
+        var val = $(form).serializeObject();
+        if (options.before) {
+            options.before(val);
+        }
+        firebase.push(val, function(error) {
+            if (!error) {
+                form.reset();
+            } else {
+                console.error(error);
+            }
+        });
+        return false;
+    });
+}
+/*
   Register a filter
 */
 Andon.registerFilter = function (name, func) {
@@ -150,4 +188,24 @@ Andon.applyFilters = function (val, filters) {
         val = $("<pre>").text(val).html();
     }
     return val;
+}
+/*
+  SerializeObject
+*/
+if (!$.fn.serializeObject) {
+    $.fn.serializeObject = function() {
+        var o = {};
+        var a = this.serializeArray();
+        $.each(a, function() {
+            if (o[this.name] !== undefined) {
+                if (!o[this.name].push) {
+                    o[this.name] = [o[this.name]];
+                }
+                o[this.name].push(this.value || '');
+            } else {
+                o[this.name] = this.value || '';
+            }
+        });
+        return o;
+    }
 }

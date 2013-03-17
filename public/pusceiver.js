@@ -34,7 +34,8 @@ Pusceiver.Room.initItems = function (room_id, path) {
             .attr("id", pane_id);
         $room_pane.find(".pill-content.item-states").append($pane);
         var start = Number($pill.data("start"));
-        Andon.bind($pane.find(".items"), Pusceiver.rootRef.child(path).startAt(start).endAt(start + 0.9));
+        var itemsRef = Pusceiver.rootRef.child(path).startAt(start).endAt(start + 0.9);
+        Andon.bind($pane.find(".items"), itemsRef);
     });
     $(room_id + "_backlog").addClass("active");
 }
@@ -51,7 +52,12 @@ Pusceiver.Room.init = function (room_id, path) {
         .attr("id", room_id);
     $pane.find(".room-header").removeClass("hide");
     $pane.find(".members").html("");
-    $pane.find("form").attr("action", path + "/items");
+    //$pane.find("form").attr("action", path + "/items");
+    var itemsRef = Pusceiver.rootRef.child(path).child("items");
+    Andon.form($pane.find("form"), itemsRef, {before: function(val) {
+        val["user_id"] = Pusceiver.userRef.name();
+        val[".priority"] = Number("1." + Date.now());
+    }});
     $pane.find(".items > li:not(.template)").remove();
     $("#rooms-pane div.tab-pane:last").after($pane);
     // items
@@ -156,27 +162,6 @@ Pusceiver.init = function(firebaseUrl) {
         $("body").removeClass("is-loggedin");
     }
 }
-
-
-// Push an item
-$(document).on("submit", "#rooms-pane form", function(e) {
-    var $form = $(this);
-    var $textarea = $form.find("textarea");
-    var path = $form.attr("action");
-    var val = {
-        "text": $textarea.val(),
-        "user_id": Pusceiver.userRef.name(),
-        ".priority": Number("1." + Date.now())
-    };
-    Pusceiver.rootRef.child(path).push(val, function(error) {
-        if (!error) {
-            $textarea.val("");
-        } else {
-            alert(error);
-        }
-    });
-    return false;
-});
 
 // Switch rooms
 $(document).on("click", '.nav-tabs a', function (e) {
