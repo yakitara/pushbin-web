@@ -9,6 +9,7 @@ $.fn.pill = function(action) {
     }
 };
 
+Andon.debug = true;
 Andon.registerFilter("first_line", function(val) {
     return val.match(/(.*)\n?/)[1];
 });
@@ -34,7 +35,7 @@ Pusceiver.Room.initItems = function (room_id, path) {
             .attr("id", pane_id);
         $room_pane.find(".pill-content.item-states").append($pane);
         var start = Number($pill.data("start"));
-        var itemsRef = Pusceiver.rootRef.child(path).startAt(start).endAt(start + 0.9);
+        var itemsRef = Pusceiver.rootRef.child(path).startAt(start).endAt(start + 1);
         Andon.bind($pane.find(".items"), itemsRef);
     });
     $(room_id + "_backlog").addClass("active");
