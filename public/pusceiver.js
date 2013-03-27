@@ -9,15 +9,6 @@ $.fn.pill = function(action) {
     }
 };
 
-Andon.debug = true;
-Andon.registerFilter("first_line", function(val) {
-    return val.match(/(.*)\n?/)[1];
-});
-Andon.registerFilter("auto_link", function(val) {
-    var text = $("<pre>").text(val).html();
-    return text.replace(/(https?:\/\/[^\s+]+)/, "<a href='$1'>$1</a>");
-});
-
 Pusceiver = {
     rootRef: null,
     userRef: null,
@@ -36,7 +27,21 @@ Pusceiver.Room.initItems = function (room_id, path) {
         $room_pane.find(".pill-content.item-states").append($pane);
         var start = Number($pill.data("start"));
         var itemsRef = Pusceiver.rootRef.child(path).startAt(start).endAt(start + 1);
-        Andon.bind($pane.find(".items"), itemsRef);
+        // bind items
+        var viewModel = new KnockoutFireCollectionViewModel(itemsRef, "items", function(obj, firebaseRef) {
+            obj.formatted_text = ko.computed(function() {
+                var text = $("<pre>").text(obj.text()).html();
+                return text.replace(/(https?:\/\/[^\s+]+)/, "<a href='$1'>$1</a>");
+            });
+            obj.title = ko.computed(function() {
+                return obj.formatted_text().match(/(.*)\n?/)[1];
+            });
+            obj.nickname = ko.observable(obj.user_id());
+            firebaseRef.root().child("/users/" + obj.user_id() + "/nickname").on("value", function(valueSnap) {
+                obj.nickname(valueSnap.val());
+            });
+        });
+        ko.applyBindings(viewModel, $pane[0]);
     });
     $(room_id + "_backlog").addClass("active");
 }
@@ -53,13 +58,24 @@ Pusceiver.Room.init = function (room_id, path) {
         .attr("id", room_id);
     $pane.find(".room-header").removeClass("hide");
     $pane.find(".members").html("");
-    //$pane.find("form").attr("action", path + "/items");
     var itemsRef = Pusceiver.rootRef.child(path).child("items");
-    Andon.form($pane.find("form"), itemsRef, {before: function(val) {
-        val["user_id"] = Pusceiver.userRef.name();
-        val[".priority"] = Number("1." + Date.now());
-    }});
-    $pane.find(".items > li:not(.template)").remove();
+    // bind new item form
+    var RoomViewModel = function() {
+        var self = this;
+        self.textToPush = ko.observable("");
+        self.pushItem = function() {
+            var val = {
+                ".priority": Number("1." + Date.now()),
+                "user_id": Pusceiver.userRef.name(),
+                "text": this.textToPush()
+            };
+            itemsRef.push(val);
+            this.textToPush("");
+        }
+    };
+    ko.applyBindings(new RoomViewModel(), $pane.find("form")[0]);
+
+    //$pane.find(".items > li:not(.template)").remove();
     $("#rooms-pane div.tab-pane:last").after($pane);
     // items
     this.initItems(room_id, path + "/items");
@@ -253,7 +269,7 @@ $(document).on("click", "a[href='#item-edit']", function(e) {
     var $item = $(this).closest(".item");
     var $textarea = $item.find("textarea[name='text']");
     if (!$item.hasClass("edit")) {
-        var itemRef = Pusceiver.rootRef.child($item.data("path"));
+        var itemRef = ko.contextFor(this).$data[".ref"];
         itemRef.once("value", function(snapshot) {
             $textarea.val(snapshot.val().text);
             $textarea.on("keyup", function(e) {

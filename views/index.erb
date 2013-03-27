@@ -67,8 +67,8 @@
                 <div class="members">
                 </div>
               </div>
-              <form>
-                <textarea name="text" class="input-block-level"></textarea>
+              <form data-bind="submit: pushItem">
+                <textarea name="text" class="input-block-level" data-bind="value: textToPush, valueUpdate: 'afterkeydown'"></textarea>
                 <div style="height:30px;">
                   <input type="submit" class="btn btn-primary pull-right" value="push" />
                 </div>
@@ -85,16 +85,16 @@
 
               <div class="pill-content item-states">
                 <div class="pill-pane item-state template" id="">
-                  <ul class="items">
-                    <li class="item template activate" onclick="">
-                      <div class="user activate" data-name="user_id:/users/$/nickname"></div>
+                  <ul class="items" data-bind="foreach: items">
+                    <li class="item activate" onclick="">
+                      <div class="user activate" data-bind="text: nickname" data-name="user_id:/users/$/nickname"></div>
                       <div class="active-hide">
-                        <div class="title activate" data-name="text|first_line|auto_link|safe"></div>
+                        <div class="title activate" data-bind="html: title"></div>
                       </div>
                       <div class="active-show">
-                        <pre class="text activate edit-hide" data-name="text|auto_link|safe"></pre>
+                        <pre class="text activate edit-hide" data-bind="text: text"></pre>
                         <form class="edit-show">
-                          <textarea class="input-block-level" name="text" rows="8" data-name="text"></textarea>
+                          <textarea class="input-block-level" name="text" rows="8" data-bind="value: text"></textarea>
                         </form>
                         <div class="item-menu activate">
                           <div>
@@ -162,8 +162,8 @@
     <script type='text/javascript' src='http://cdn.jsdelivr.net/jquery.cookie/1.3.1/jquery.cookie.js'></script>
     <script type='text/javascript' src='https://cdn.firebase.com/v0/firebase.js'></script>
     <!--<script type='text/javascript' src='https://cdn.firebase.com/v0/firebase-auth-client.js'></script>-->
-    <!--<script type='text/javascript' src='/serialize_object.js'></script>-->
-    <script type='text/javascript' src='/components/andon/andon.js'></script>
+    <script type='text/javascript' src='//cdn.jsdelivr.net/knockout/2.2.1/knockout-2.2.1.js'></script>
+    <script type='text/javascript' src='/components/knockoutFire/knockoutFire.js'></script>
     <script type='text/javascript' src='/pusceiver.js'></script>
     <script type='text/javascript'>
       Pusceiver.init('<%= firebase_url %>');
