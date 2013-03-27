@@ -28,18 +28,21 @@ Pusceiver.Room.initItems = function (room_id, path) {
         var start = Number($pill.data("start"));
         var itemsRef = Pusceiver.rootRef.child(path).startAt(start).endAt(start + 1);
         // bind items
-        var viewModel = new KnockoutFireCollectionViewModel(itemsRef, "items", function(obj, firebaseRef) {
-            obj.formatted_text = ko.computed(function() {
-                var text = $("<pre>").text(obj.text()).html();
-                return text.replace(/(https?:\/\/[^\s+]+)/, "<a href='$1'>$1</a>");
-            });
-            obj.title = ko.computed(function() {
-                return obj.formatted_text().match(/(.*)\n?/)[1];
-            });
-            obj.nickname = ko.observable(obj.user_id());
-            firebaseRef.root().child("/users/" + obj.user_id() + "/nickname").on("value", function(valueSnap) {
-                obj.nickname(valueSnap.val());
-            });
+        var viewModel = new KnockoutFireCollectionViewModel(itemsRef, {
+            "reverseOrder": true,
+            "objExtendFunc": function(obj, firebaseRef) {
+                obj.formatted_text = ko.computed(function() {
+                    var text = $("<pre>").text(obj.text()).html();
+                    return text.replace(/(https?:\/\/[^\s+]+)/, "<a href='$1'>$1</a>");
+                });
+                obj.title = ko.computed(function() {
+                    return obj.formatted_text().match(/(.*)\n?/)[1];
+                });
+                obj.nickname = ko.observable(obj.user_id());
+                firebaseRef.root().child("/users/" + obj.user_id() + "/nickname").on("value", function(valueSnap) {
+                    obj.nickname(valueSnap.val());
+                });
+            }
         });
         ko.applyBindings(viewModel, $pane[0]);
     });
