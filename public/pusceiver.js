@@ -42,6 +42,12 @@ Pusceiver.Room.initItems = function (room_id, path) {
                 firebaseRef.root().child("/users/" + obj.user_id() + "/nickname").on("value", function(valueSnap) {
                     obj.nickname(valueSnap.val());
                 });
+                obj.move = function(data, event) {
+                    var start = $(event.currentTarget).data("start");
+                    var priority = Number(start) + Number("0." + Date.now());
+                    firebaseRef.setPriority(priority)
+                };
+                obj.startPriority = start;
             }
         });
         ko.applyBindings(viewModel, $pane[0]);
@@ -256,46 +262,10 @@ $(document).on("click", ".item", function(e) {
     }
     return false;
 });
-// Change an item status
-$(document).on("click", "a[href='#item-move']", function(e) {
-    var itemRef = Pusceiver.rootRef.child($(this).closest(".item").data("path"));
-    var priority = Number($(this).data("start")) + Number("0." + Date.now());
-    itemRef.setPriority(priority, function(error) {
-        if (error) {
-            console.log(error);
-        }
-    });
-    return false;
-});
 // edit an item
 $(document).on("click", "a[href='#item-edit']", function(e) {
     var $item = $(this).closest(".item");
     var $textarea = $item.find("textarea[name='text']");
-    if (!$item.hasClass("edit")) {
-        var itemRef = ko.contextFor(this).$data[".ref"];
-        itemRef.once("value", function(snapshot) {
-            $textarea.val(snapshot.val().text);
-            $textarea.on("keyup", function(e) {
-                var val = $(this).closest("form").serializeObject();
-                itemRef.update(val);
-            });
-            $item.addClass("edit");
-        });
-    } else {
-        $textarea.off("keyup");
-        $item.removeClass("edit");
-    }
+    $item.toggleClass("edit");
     return false;
-});
-// move an item to top
-$(document).on("click", "a[href='#item-top']", function(e) {
-    var itemRef = Pusceiver.rootRef.child($(this).closest(".item").data("path"));
-    itemRef.on("value", function(snapshot) {
-        var priority = Math.floor(snapshot.getPriority()) + Number("0." + Date.now());
-        itemRef.setPriority(priority, function(error) {
-            if (error) {
-                console.log(error);
-            }
-        });
-    });
 });

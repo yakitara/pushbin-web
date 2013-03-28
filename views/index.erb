@@ -87,14 +87,14 @@
                 <div class="pill-pane item-state template" id="">
                   <ul class="items" data-bind="foreach: items">
                     <li class="item activate" onclick="">
-                      <div class="user activate" data-bind="text: nickname" data-name="user_id:/users/$/nickname"></div>
+                      <div class="user activate" data-bind="text: nickname"></div>
                       <div class="active-hide">
                         <div class="title activate" data-bind="html: title"></div>
                       </div>
                       <div class="active-show">
                         <pre class="text activate edit-hide" data-bind="text: text"></pre>
                         <form class="edit-show">
-                          <textarea class="input-block-level" name="text" rows="8" data-bind="value: text"></textarea>
+                          <textarea class="input-block-level" name="text" rows="8" data-bind="value: text, valueUpdate: 'keyup'"></textarea>
                         </form>
                         <div class="item-menu activate">
                           <div>
@@ -103,13 +103,13 @@
                                 <i class="icon-check"></i><span class="caret"></span>
                               </a>
                               <ul class="dropdown-menu">
-                                <li><a href="#item-move" data-start="-1">Done</a></li>
-                                <li><a href="#item-move" data-start="0">Current</a></li>
-                                <li><a href="#item-move" data-start="1">Backlog</a></li>
-                                <li><a href="#item-move" data-start="2">Icebox</a></li>
+                                <li><a data-bind="click: move" data-start="-1">Done</a></li>
+                                <li><a data-bind="click: move" data-start="0">Current</a></li>
+                                <li><a data-bind="click: move" data-start="1">Backlog</a></li>
+                                <li><a data-bind="click: move" data-start="2">Icebox</a></li>
                               </ul>
                             </div>
-                            <a class="btn btn-small" href="#item-top">
+                            <a class="btn btn-small" data-bind="attr: {'data-start': startPriority}, click: move">
                               <i class="icon-arrow-up"></i>
                             </a>
                             <a class="btn btn-small" href="#item-edit" data-toggle="button">
