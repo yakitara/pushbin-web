@@ -28,26 +28,27 @@ Pusceiver.Room.initItems = function (room_id, path) {
         var start = Number($pill.data("start"));
         var itemsRef = Pusceiver.rootRef.child(path).startAt(start).endAt(start + 1);
         // bind items
-        var viewModel = new KnockoutFireCollectionViewModel(itemsRef, {
+        var viewModel = {};
+        viewModel.items = KnockoutFire.observableArray(itemsRef, {
             "reverseOrder": true,
-            "objExtendFunc": function(obj, firebaseRef) {
-                obj.formatted_text = ko.computed(function() {
-                    var text = $("<pre>").text(obj.text()).html();
+            "itemExtendFunc": function(item, firebaseRef) {
+                item.formatted_text = ko.computed(function() {
+                    var text = $("<pre>").text(item.text()).html();
                     return text.replace(/(https?:\/\/[^\s+]+)/, "<a href='$1'>$1</a>");
                 });
-                obj.title = ko.computed(function() {
-                    return obj.formatted_text().match(/(.*)\n?/)[1];
+                item.title = ko.computed(function() {
+                    return item.formatted_text().match(/(.*)\n?/)[1];
                 });
-                obj.nickname = ko.observable(obj.user_id());
-                firebaseRef.root().child("/users/" + obj.user_id() + "/nickname").on("value", function(valueSnap) {
-                    obj.nickname(valueSnap.val());
+                item.nickname = ko.observable(item.user_id());
+                firebaseRef.root().child("/users/" + item.user_id() + "/nickname").on("value", function(valueSnap) {
+                    item.nickname(valueSnap.val());
                 });
-                obj.move = function(data, event) {
+                item.move = function(data, event) {
                     var start = $(event.currentTarget).data("start");
                     var priority = Number(start) + Number("0." + Date.now());
                     firebaseRef.setPriority(priority)
                 };
-                obj.startPriority = start;
+                item.startPriority = start;
             }
         });
         ko.applyBindings(viewModel, $pane[0]);
