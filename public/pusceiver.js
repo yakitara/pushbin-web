@@ -1,6 +1,7 @@
 // Reuirements (versions are used for development)
 // - jQuery 1.9.1
 // - Twitter bootstrap 2.3.1
+
 $.fn.pill = function(action) {
     if (action == "show") {
         var $pill = this.closest("li");
@@ -8,157 +9,206 @@ $.fn.pill = function(action) {
         $pill.add($pane).addClass("active").siblings().removeClass("active");
     }
 };
+// http://jsfiddle.net/rniemeyer/tWJxh/
+ko.bindingHandlers.stopBindings = {
+    init: function() {
+        return { controlsDescendantBindings: true };
+    }  
+};
 
 Pusceiver = {
     rootRef: null,
     userRef: null,
 }
-Pusceiver.Room = {}
-Pusceiver.Room.initItems = function (room_id, path) {
-    $("#" + room_id).find(".nav-pills.item-states > li").each(function() {
-        var $pill = $(this);
-        var state = $pill.find("a").attr("href");
-        var pane_id = room_id + "_" + state;
-        $pill.find("a").attr("data-target", "#" + pane_id);
-        var $room_pane = $pill.closest(".tab-pane.room");
-        var $pane = $room_pane.find(".pill-pane.item-state.template").clone()
-            .removeClass("template")
-            .attr("id", pane_id);
-        $room_pane.find(".pill-content.item-states").append($pane);
-        var start = Number($pill.data("start"));
-        var itemsRef = Pusceiver.rootRef.child(path).startAt(start).endAt(start + 1);
-        // bind items
-        var viewModel = {};
-        viewModel.items = KnockoutFire.observableArray(itemsRef, {
-            "reverseOrder": true,
-            "itemExtendFunc": function(item, firebaseRef) {
-                item.formatted_text = ko.computed(function() {
-                    var text = $("<pre>").text(item.text()).html();
-                    return text.replace(/(https?:\/\/[^\s+]+)/, "<a href='$1'>$1</a>");
-                });
-                item.title = ko.computed(function() {
-                    return item.formatted_text().match(/(.*)\n?/)[1];
-                });
-                item.nickname = ko.observable(item.user_id());
-                firebaseRef.root().child("/users/" + item.user_id() + "/nickname").on("value", function(valueSnap) {
-                    item.nickname(valueSnap.val());
-                });
-                item.move = function(data, event) {
-                    var start = $(event.currentTarget).data("start");
-                    var priority = Number(start) + Number("0." + Date.now());
-                    firebaseRef.setPriority(priority)
-                };
-                item.startPriority = start;
-            }
-        });
-        ko.applyBindings(viewModel, $pane[0]);
-    });
-    $(room_id + "_backlog").addClass("active");
-}
-Pusceiver.Room.init = function (room_id, path) {
-    // var path = "/rooms/" + room_id + "/";
-    // clone tab for the room
-    // var $tab = $("<li>").append($("<a>").attr({"href": path, "data-target": "#" + room_id}));
-    // $("#rooms-tab li:last").before($tab)
-    var $tab = $("ul#rooms-tabs > li.template").clone().removeClass("template");
-    $tab.find("a").attr("href", path).attr("data-target", "#" + room_id);
-    $("#rooms-tabs > li:last").before($tab);
-    var $pane = $("#rooms-pane .tab-pane.room.template").clone()
-        .removeClass("template")
-        .attr("id", room_id);
-    $pane.find(".room-header").removeClass("hide");
-    $pane.find(".members").html("");
-    var itemsRef = Pusceiver.rootRef.child(path).child("items");
-    // bind new item form
-    var RoomViewModel = function() {
-        var self = this;
-        self.textToPush = ko.observable("");
-        self.pushItem = function() {
-            var val = {
-                ".priority": Number("1." + Date.now()),
-                "user_id": Pusceiver.userRef.name(),
-                "text": this.textToPush()
-            };
-            itemsRef.push(val);
-            this.textToPush("");
-        }
-    };
-    ko.applyBindings(new RoomViewModel(), $pane.find("form")[0]);
+// Pusceiver.Room = {}
+// Pusceiver.Room.initItems = function (room_id, path) {
+//     $("#" + room_id).find(".nav-pills.item-states > li").each(function() {
+//         var $pill = $(this);
+//         var state = $pill.find("a").attr("href");
+//         var pane_id = room_id + "_" + state;
+//         $pill.find("a").attr("data-target", "#" + pane_id);
+//         var $room_pane = $pill.closest(".tab-pane.room");
+//         var $pane = $room_pane.find(".pill-pane.item-state.template").clone()
+//             .removeClass("template")
+//             .attr("id", pane_id);
+//         $room_pane.find(".pill-content.item-states").append($pane);
+//         var start = Number($pill.data("start"));
+//         var itemsRef = Pusceiver.rootRef.child(path).startAt(start).endAt(start + 1);
+//         // bind items
+//         var viewModel = {};
+//         viewModel.items = KnockoutFire.observableArray(itemsRef, {
+//             "reverseOrder": true,
+//             "itemExtendFunc": Pusceiver.itemExtendFunc,
+//         });
+//         ko.applyBindings(viewModel, $pane[0]);
+//     });
+//     $(room_id + "_backlog").addClass("active");
+// }
+// Pusceiver.Room.init = function (room_id, path) {
+//     var $tab = $("ul#rooms-tabs > li.template").clone().removeClass("template");
+//     $tab.find("a").attr("href", path).attr("data-target", "#" + room_id);
+//     $("#rooms-tabs > li:last").before($tab);
+//     var $pane = $("#rooms-pane .tab-pane.room.template").clone()
+//         .removeClass("template")
+//         .attr("id", room_id);
+//     $pane.find(".room-header").removeClass("hide");
+//     $pane.find(".members").html("");
+//     var itemsRef = Pusceiver.rootRef.child(path).child("items");
+//     // bind new item form
+//     var RoomViewModel = function() {
+//         var self = this;
+//         self.textToPush = ko.observable("");
+//         self.pushItem = function() {
+//             var val = {
+//                 ".priority": Number("1." + Date.now()),
+//                 "user_id": Pusceiver.userRef.name(),
+//                 "text": this.textToPush()
+//             };
+//             itemsRef.push(val);
+//             this.textToPush("");
+//         }
+//     };
+//     ko.applyBindings(new RoomViewModel(), $pane.find("form")[0]);
 
-    //$pane.find(".items > li:not(.template)").remove();
-    $("#rooms-pane div.tab-pane:last").after($pane);
-    // items
-    this.initItems(room_id, path + "/items");
-    // Switch to the room if the URL matched
-    //if (window.location.pathname.indexOf(path) == 0) {
-    var match = window.location.pathname.match(path + "(.*)");
-    if (match) {
-        $tab.find("a").tab('show');
-        //console.log(match[1]);
-        $pane.find(".nav-pills.item-states a[href='" + match[1] + "']").pill("show");
-    }
-    // title
-    $tab.find("a").text(room_id);
-    var roomRef = Pusceiver.rootRef.child(path);
-    roomRef.on("value", function(roomSnapshot) {
-        var room = roomSnapshot.val();
-        $tab.find("a").text(room.title);
+//     //$pane.find(".items > li:not(.template)").remove();
+//     $("#rooms-pane div.tab-pane:last").after($pane);
+//     // items
+//     this.initItems(room_id, path + "/items");
+//     // Switch to the room if the URL matched
+//     //if (window.location.pathname.indexOf(path) == 0) {
+//     var match = window.location.pathname.match(path + "(.*)");
+//     if (match) {
+//         $tab.find("a").tab('show');
+//         //console.log(match[1]);
+//         $pane.find(".nav-pills.item-states a[href='" + match[1] + "']").pill("show");
+//     }
+//     // title
+//     $tab.find("a").text(room_id);
+//     var roomRef = Pusceiver.rootRef.child(path);
+//     roomRef.on("value", function(roomSnapshot) {
+//         var room = roomSnapshot.val();
+//         $tab.find("a").text(room.title);
+//     });
+//     // members
+//     roomRef.child("members").on("child_added", function(snapshot) {
+//         var user_id = snapshot.name();
+//         var $member = $("<span>").addClass("user-" + user_id).append($("<i>").addClass("icon-user"), "user" + snapshot.name());
+//         if (snapshot.val().online) {
+//             $member.removeClass("offline");
+//         } else {
+//             $member.addClass("offline");
+//         }
+//         $("#" + room_id + " .members").append($member);
+//         Pusceiver.rootRef.child("/users/" + user_id + "/nickname").on("value", function(snapshot) {
+//             $("#" + room_id + " .user-" + user_id).text("@" + snapshot.val());
+//         });
+//     });
+//     roomRef.child("members").on("child_removed", function(oldSnapshot) {
+//         var user_id = oldSnapshot.name();
+//         $("#" + room_id + " .members .user-" + user_id).remove();
+//     });
+//     // online status
+//     roomRef.child("members").on("child_changed", function(snapshot) {
+//         var user_id = snapshot.name();
+//         var $member = $("#" + room_id + " .user-" + user_id);
+//         if (snapshot.val().online) {
+//             $member.removeClass("offline");
+//         } else {
+//             $member.addClass("offline");
+//         }
+//     });
+// }
+/*
+  
+*/
+Pusceiver.itemExtendFunc = function(item, firebaseRef) {
+    item.formatted_text = ko.computed(function() {
+        var text = $("<pre>").text(item.text()).html();
+        return text.replace(/(https?:\/\/[^\s+]+)/, "<a href='$1'>$1</a>");
     });
-    // members
-    roomRef.child("members").on("child_added", function(snapshot) {
-        var user_id = snapshot.name();
-        var $member = $("<span>").addClass("user-" + user_id).append($("<i>").addClass("icon-user"), "user" + snapshot.name());
-        if (snapshot.val().online) {
-            $member.removeClass("offline");
-        } else {
-            $member.addClass("offline");
-        }
-        $("#" + room_id + " .members").append($member);
-        Pusceiver.rootRef.child("/users/" + user_id + "/nickname").on("value", function(snapshot) {
-            $("#" + room_id + " .user-" + user_id).text("@" + snapshot.val());
+    item.title = ko.computed(function() {
+        return item.formatted_text().match(/(.*)\n?/)[1];
+    });
+    item.nickname = ko.observable(item.user_id());
+    firebaseRef.root().child("/users/" + item.user_id() + "/nickname").on("value", function(valueSnap) {
+        item.nickname(valueSnap.val());
+    });
+    item.move = function(data, event) {
+        var start = $(event.currentTarget).data("start");
+        var priority = Number(start) + Number("0." + Date.now());
+        firebaseRef.setPriority(priority)
+    };
+    item.startPriority = item._priority ? item._priority.toFixed() : 0;
+};
+/*
+  
+*/
+Pusceiver.roomExtendFunc = function(room, roomRef) {
+    room.path = roomRef.path.toString();
+    room.name = roomRef.name();
+    room.textToPush = ko.observable("");
+    room.pushItem = function() {
+        var val = {
+            ".priority": Number("1." + Date.now()),
+            "user_id": Pusceiver.userRef.name(),
+            "text": this.textToPush()
+        };
+        roomRef.child("items").push(val);
+        this.textToPush("");
+    }
+    room.states = [
+        {name: "Done"},
+        {name: "Current"},
+        {name: "Backlog"},
+        {name: "Icebox"}
+    ]
+    room.states.forEach(function(state, i) {
+        var ref = roomRef.child("items").startAt(i - 1).endAt(i);
+        state.start = i - 1;
+        state.id = room.name + "_" + state.name.toLowerCase();
+        state.path = room.path + "/" + state.name.toLowerCase();
+        state.items = KnockoutFire.observableArray(ref, {
+            "reverseOrder": true,
+            "itemExtendFunc": Pusceiver.itemExtendFunc,
         });
     });
-    roomRef.child("members").on("child_removed", function(oldSnapshot) {
-        var user_id = oldSnapshot.name();
-        $("#" + room_id + " .members .user-" + user_id).remove();
-    });
-    // online status
-    roomRef.child("members").on("child_changed", function(snapshot) {
-        var user_id = snapshot.name();
-        var $member = $("#" + room_id + " .user-" + user_id);
-        if (snapshot.val().online) {
-            $member.removeClass("offline");
-        } else {
-            $member.addClass("offline");
-        }
-    });
-}
-Pusceiver.User = {}
+};
+
+Pusceiver.User = {};
 Pusceiver.User.init = function(auth) {
     var user_path = "/users/" + auth.id;
     Pusceiver.userRef = Pusceiver.rootRef.child(user_path);
     Pusceiver.userRef.update({"nickname": auth.nickname});
-    // private room
-    Pusceiver.Room.init("private", user_path + "/items/");
-    // other rooms
-    Pusceiver.userRef.child("rooms").on("child_added", function(snapshot) {
-        var room_id = snapshot.name();
-        Pusceiver.Room.init(room_id, "/rooms/" + room_id + "/");
+    // bind
+    var viewModel = {}
+    viewModel.rooms = KnockoutFire.observableArray(Pusceiver.userRef.child("rooms"), {
+        "reference": Pusceiver.rootRef.child("rooms"),
+        "excludes": ["items"],
+        "itemExtendFunc": Pusceiver.roomExtendFunc,
     });
-    // Update own presence
-    Pusceiver.rootRef.child('/.info/connected').on('value', function(snap) {
-        var connected = snap.val();
-        console.log("connected: " + connected);
-        Pusceiver.userRef.child("rooms").on("child_added", function(roomSnapshot) {
-            var memberRef = Pusceiver.rootRef.child("/rooms/" + roomSnapshot.name() + "/members/" + auth.id);
-            memberRef.onDisconnect().update({"online": false})
-            memberRef.update({"online": connected}, function(error) {
-                if (error) {
-                    console.log(error);
-                }
-            });
-        });
-    });
+    ko.applyBindings(viewModel, $("#rooms")[0]);
+
+    // // private room
+    // Pusceiver.Room.init("private", user_path + "/items/");
+    // // other rooms
+    // Pusceiver.userRef.child("rooms").on("child_added", function(snapshot) {
+    //     var room_id = snapshot.name();
+    //     Pusceiver.Room.init(room_id, "/rooms/" + room_id + "/");
+    // });
+    // // Update own presence
+    // Pusceiver.rootRef.child('/.info/connected').on('value', function(snap) {
+    //     var connected = snap.val();
+    //     console.log("connected: " + connected);
+    //     Pusceiver.userRef.child("rooms").on("child_added", function(roomSnapshot) {
+    //         var memberRef = Pusceiver.rootRef.child("/rooms/" + roomSnapshot.name() + "/members/" + auth.id);
+    //         memberRef.onDisconnect().update({"online": false})
+    //         memberRef.update({"online": connected}, function(error) {
+    //             if (error) {
+    //                 console.log(error);
+    //             }
+    //         });
+    //     });
+    // });
     // join or switch to the room specified in URL
     var match = window.location.pathname.match("/(rooms/[^/]+)");
     if (match) {
