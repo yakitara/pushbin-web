@@ -1,6 +1,9 @@
 // Reuirements (versions are used for development)
 // - jQuery 1.9.1
 // - Twitter bootstrap 2.3.1
+// - KnockoutJs 2.2.1
+// - Firebase
+// - KnockoutFire (https://github.com/hiroshi/KnockoutFire
 
 $.fn.pill = function(action) {
     if (action == "show") {
@@ -167,10 +170,11 @@ Pusceiver.roomExtendFunc = function(room, roomRef) {
         state.start = i - 1;
         state.id = room.name + "_" + state.name.toLowerCase();
         state.path = room.path + "/" + state.name.toLowerCase();
-        state.items = KnockoutFire.observableArray(ref, {
+        state.items = ko.observableArray().extend({firebaseArray:{
+            "firebase": ref,
             "reverseOrder": true,
             "itemExtendFunc": Pusceiver.itemExtendFunc,
-        });
+        }});
     });
 };
 
@@ -181,11 +185,12 @@ Pusceiver.User.init = function(auth) {
     Pusceiver.userRef.update({"nickname": auth.nickname});
     // bind
     var viewModel = {}
-    viewModel.rooms = KnockoutFire.observableArray(Pusceiver.userRef.child("rooms"), {
+    viewModel.rooms = ko.observableArray().extend({firebaseArray:{
+        "firebase": Pusceiver.userRef.child("rooms"),
         "reference": Pusceiver.rootRef.child("rooms"),
         "excludes": ["items"],
         "itemExtendFunc": Pusceiver.roomExtendFunc,
-    });
+    }});
     ko.applyBindings(viewModel, $("#rooms")[0]);
 
     // // private room
