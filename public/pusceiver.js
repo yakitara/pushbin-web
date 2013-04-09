@@ -194,6 +194,10 @@ Pusceiver.roomExtendFunc = function(room, roomRef) {
             "reverseOrder": true,
             "itemExtendFunc": Pusceiver.itemExtendFunc,
         }});
+        state.items.count = ko.computed(function() {
+            var len = state.items().length;
+            return len > 0 ? len : null;
+        });
     });
 };
 

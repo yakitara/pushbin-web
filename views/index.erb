@@ -77,7 +77,7 @@
               </form>
 
               <ul class="nav nav-pills item-states" data-bind="foreach: states">
-                <li data-bind="attr: {'data-start': start}"><a data-bind="text: name, attr: {href: path, 'data-target': '#' + id}"></a></li>
+                <li data-bind="attr: {'data-start': start}"><a data-bind="attr: {href: path, 'data-target': '#' + id}"><span data-bind="text: name"></span> <span class="badge" data-bind="text: items.count"></span></a></li>
               </ul>
 
               <div class="pill-content item-states" data-bind="foreach: states">
