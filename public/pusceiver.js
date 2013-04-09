@@ -139,7 +139,26 @@ Pusceiver.itemExtendFunc = function(item, firebaseRef) {
     item.move = function(data, event) {
         var start = $(event.currentTarget).data("start");
         var priority = Number(start) + Number("0." + Date.now());
-        firebaseRef.setPriority(priority)
+        firebaseRef.setPriority(priority, function(error) {
+            //NOTE: workaround for http://stackoverflow.com/questions/15437229
+            console.log("setPriority");
+            var beforeStateContext = ko.contextFor($(event.currentTarget).parents("ul.items")[0]);
+            var beforeState = beforeStateContext.$data;
+            if (beforeState.start != start) {
+                var idx = -1;
+                beforeState.items().forEach(function(item, i) {
+                    if (item._name == data._name) {
+                        idx = i;
+                    }
+                });
+                var item = beforeState.items.splice(idx, 1)[0];
+                beforeStateContext.$parent.states.forEach(function(state, i) {
+                    if (state.start == start) {
+                        state.items.unshift(item);
+                    }
+                });
+            }
+        });
     };
     item.startPriority = item._priority ? item._priority.toFixed() : 0;
 };
