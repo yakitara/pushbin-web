@@ -54,7 +54,7 @@
             <!-- /ko -->
             <li><a href="#new-room"><i class="icon-plus"></i></a></li>
           </ul>
-          <div class="tab-content" id="rooms-pane" data-bind="foreach: rooms">
+          <div class="tab-content" id="rooms-pane" data-bind="foreach: {data: rooms, afterAdd: activateRoomAndStateIfPathMatched}">
             <div class="tab-pane room" data-bind="attr: {id: name}">
               <div class="room-header">
                 <div class="dropdown pull-right room-menu">

@@ -158,13 +158,13 @@ Pusceiver.roomExtendFunc = function(room, roomRef) {
         };
         roomRef.child("items").push(val);
         this.textToPush("");
-    }
+    };
     room.states = [
         {name: "Done"},
         {name: "Current"},
         {name: "Backlog"},
         {name: "Icebox"}
-    ]
+    ];
     room.states.forEach(function(state, i) {
         var ref = roomRef.child("items").startAt(i - 1).endAt(i);
         state.start = i - 1;
@@ -191,6 +191,14 @@ Pusceiver.User.init = function(auth) {
         "excludes": ["items"],
         "itemExtendFunc": Pusceiver.roomExtendFunc,
     }});
+    viewModel.activateRoomAndStateIfPathMatched = function(element, index, data) {
+        var path = window.location.pathname;
+        var match = path.match(data.path + "/?.*");
+        if (match) {
+            $("a[data-target='#" + $(element).attr("id") + "']").tab('show');
+            $(element).find(".nav-pills.item-states a[href='" + path + "']").pill("show");
+        }
+    };
     ko.applyBindings(viewModel, $("#rooms")[0]);
 
     // // private room
