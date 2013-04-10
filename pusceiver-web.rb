@@ -8,7 +8,7 @@ set :public_folder, "public"
 locals = {:firebase_url => (ENV['FIREBASE_URL'] || 'https://pusceiver.firebaseio.com/')}
 
 get %r{^/(rooms/.*)?$} do
-  response.set_cookie('firebaseUserToken', session['firebaseUserToken'])
+  response.set_cookie('firebaseUserToken', :value => session['firebaseUserToken'], :path => "/")
   erb :index, :locals => locals
 end
 
