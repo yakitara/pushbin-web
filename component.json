@@ -1,5 +1,7 @@
 {
-  "name": "pusceiver-web",
+  "name": "pushbin-web",
   "version": "0.0.0",
-  "dependencies": {}
+  "dependencies": {
+      "knockoutFire": "git@github.com:hiroshi/knockoutFire.git"
+  }
 }
