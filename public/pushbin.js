@@ -23,104 +23,6 @@ Pushbin = {
     rootRef: null,
     userRef: null,
 }
-// Pushbin.Room = {}
-// Pushbin.Room.initItems = function (room_id, path) {
-//     $("#" + room_id).find(".nav-pills.item-states > li").each(function() {
-//         var $pill = $(this);
-//         var state = $pill.find("a").attr("href");
-//         var pane_id = room_id + "_" + state;
-//         $pill.find("a").attr("data-target", "#" + pane_id);
-//         var $room_pane = $pill.closest(".tab-pane.room");
-//         var $pane = $room_pane.find(".pill-pane.item-state.template").clone()
-//             .removeClass("template")
-//             .attr("id", pane_id);
-//         $room_pane.find(".pill-content.item-states").append($pane);
-//         var start = Number($pill.data("start"));
-//         var itemsRef = Pushbin.rootRef.child(path).startAt(start).endAt(start + 1);
-//         // bind items
-//         var viewModel = {};
-//         viewModel.items = KnockoutFire.observableArray(itemsRef, {
-//             "reverseOrder": true,
-//             "itemExtendFunc": Pushbin.itemExtendFunc,
-//         });
-//         ko.applyBindings(viewModel, $pane[0]);
-//     });
-//     $(room_id + "_backlog").addClass("active");
-// }
-// Pushbin.Room.init = function (room_id, path) {
-//     var $tab = $("ul#rooms-tabs > li.template").clone().removeClass("template");
-//     $tab.find("a").attr("href", path).attr("data-target", "#" + room_id);
-//     $("#rooms-tabs > li:last").before($tab);
-//     var $pane = $("#rooms-pane .tab-pane.room.template").clone()
-//         .removeClass("template")
-//         .attr("id", room_id);
-//     $pane.find(".room-header").removeClass("hide");
-//     $pane.find(".members").html("");
-//     var itemsRef = Pushbin.rootRef.child(path).child("items");
-//     // bind new item form
-//     var RoomViewModel = function() {
-//         var self = this;
-//         self.textToPush = ko.observable("");
-//         self.pushItem = function() {
-//             var val = {
-//                 ".priority": Number("1." + Date.now()),
-//                 "user_id": Pushbin.userRef.name(),
-//                 "text": this.textToPush()
-//             };
-//             itemsRef.push(val);
-//             this.textToPush("");
-//         }
-//     };
-//     ko.applyBindings(new RoomViewModel(), $pane.find("form")[0]);
-
-//     //$pane.find(".items > li:not(.template)").remove();
-//     $("#rooms-pane div.tab-pane:last").after($pane);
-//     // items
-//     this.initItems(room_id, path + "/items");
-//     // Switch to the room if the URL matched
-//     //if (window.location.pathname.indexOf(path) == 0) {
-//     var match = window.location.pathname.match(path + "(.*)");
-//     if (match) {
-//         $tab.find("a").tab('show');
-//         //console.log(match[1]);
-//         $pane.find(".nav-pills.item-states a[href='" + match[1] + "']").pill("show");
-//     }
-//     // title
-//     $tab.find("a").text(room_id);
-//     var roomRef = Pushbin.rootRef.child(path);
-//     roomRef.on("value", function(roomSnapshot) {
-//         var room = roomSnapshot.val();
-//         $tab.find("a").text(room.title);
-//     });
-//     // members
-//     roomRef.child("members").on("child_added", function(snapshot) {
-//         var user_id = snapshot.name();
-//         var $member = $("<span>").addClass("user-" + user_id).append($("<i>").addClass("icon-user"), "user" + snapshot.name());
-//         if (snapshot.val().online) {
-//             $member.removeClass("offline");
-//         } else {
-//             $member.addClass("offline");
-//         }
-//         $("#" + room_id + " .members").append($member);
-//         Pushbin.rootRef.child("/users/" + user_id + "/nickname").on("value", function(snapshot) {
-//             $("#" + room_id + " .user-" + user_id).text("@" + snapshot.val());
-//         });
-//     });
-//     roomRef.child("members").on("child_removed", function(oldSnapshot) {
-//         var user_id = oldSnapshot.name();
-//         $("#" + room_id + " .members .user-" + user_id).remove();
-//     });
-//     // online status
-//     roomRef.child("members").on("child_changed", function(snapshot) {
-//         var user_id = snapshot.name();
-//         var $member = $("#" + room_id + " .user-" + user_id);
-//         if (snapshot.val().online) {
-//             $member.removeClass("offline");
-//         } else {
-//             $member.addClass("offline");
-//         }
-//     });
-// }
 /*
   
 */
@@ -356,3 +258,101 @@ $(document).on("click", "a[href='#item-edit']", function(e) {
     $item.toggleClass("edit");
     return false;
 });
+
+// Pushbin.Room.initItems = function (room_id, path) {
+//     $("#" + room_id).find(".nav-pills.item-states > li").each(function() {
+//         var $pill = $(this);
+//         var state = $pill.find("a").attr("href");
+//         var pane_id = room_id + "_" + state;
+//         $pill.find("a").attr("data-target", "#" + pane_id);
+//         var $room_pane = $pill.closest(".tab-pane.room");
+//         var $pane = $room_pane.find(".pill-pane.item-state.template").clone()
+//             .removeClass("template")
+//             .attr("id", pane_id);
+//         $room_pane.find(".pill-content.item-states").append($pane);
+//         var start = Number($pill.data("start"));
+//         var itemsRef = Pushbin.rootRef.child(path).startAt(start).endAt(start + 1);
+//         // bind items
+//         var viewModel = {};
+//         viewModel.items = KnockoutFire.observableArray(itemsRef, {
+//             "reverseOrder": true,
+//             "itemExtendFunc": Pushbin.itemExtendFunc,
+//         });
+//         ko.applyBindings(viewModel, $pane[0]);
+//     });
+//     $(room_id + "_backlog").addClass("active");
+// }
+// Pushbin.Room.init = function (room_id, path) {
+//     var $tab = $("ul#rooms-tabs > li.template").clone().removeClass("template");
+//     $tab.find("a").attr("href", path).attr("data-target", "#" + room_id);
+//     $("#rooms-tabs > li:last").before($tab);
+//     var $pane = $("#rooms-pane .tab-pane.room.template").clone()
+//         .removeClass("template")
+//         .attr("id", room_id);
+//     $pane.find(".room-header").removeClass("hide");
+//     $pane.find(".members").html("");
+//     var itemsRef = Pushbin.rootRef.child(path).child("items");
+//     // bind new item form
+//     var RoomViewModel = function() {
+//         var self = this;
+//         self.textToPush = ko.observable("");
+//         self.pushItem = function() {
+//             var val = {
+//                 ".priority": Number("1." + Date.now()),
+//                 "user_id": Pushbin.userRef.name(),
+//                 "text": this.textToPush()
+//             };
+//             itemsRef.push(val);
+//             this.textToPush("");
+//         }
+//     };
+//     ko.applyBindings(new RoomViewModel(), $pane.find("form")[0]);
+
+//     //$pane.find(".items > li:not(.template)").remove();
+//     $("#rooms-pane div.tab-pane:last").after($pane);
+//     // items
+//     this.initItems(room_id, path + "/items");
+//     // Switch to the room if the URL matched
+//     //if (window.location.pathname.indexOf(path) == 0) {
+//     var match = window.location.pathname.match(path + "(.*)");
+//     if (match) {
+//         $tab.find("a").tab('show');
+//         //console.log(match[1]);
+//         $pane.find(".nav-pills.item-states a[href='" + match[1] + "']").pill("show");
+//     }
+//     // title
+//     $tab.find("a").text(room_id);
+//     var roomRef = Pushbin.rootRef.child(path);
+//     roomRef.on("value", function(roomSnapshot) {
+//         var room = roomSnapshot.val();
+//         $tab.find("a").text(room.title);
+//     });
+//     // members
+//     roomRef.child("members").on("child_added", function(snapshot) {
+//         var user_id = snapshot.name();
+//         var $member = $("<span>").addClass("user-" + user_id).append($("<i>").addClass("icon-user"), "user" + snapshot.name());
+//         if (snapshot.val().online) {
+//             $member.removeClass("offline");
+//         } else {
+//             $member.addClass("offline");
+//         }
+//         $("#" + room_id + " .members").append($member);
+//         Pushbin.rootRef.child("/users/" + user_id + "/nickname").on("value", function(snapshot) {
+//             $("#" + room_id + " .user-" + user_id).text("@" + snapshot.val());
+//         });
+//     });
+//     roomRef.child("members").on("child_removed", function(oldSnapshot) {
+//         var user_id = oldSnapshot.name();
+//         $("#" + room_id + " .members .user-" + user_id).remove();
+//     });
+//     // online status
+//     roomRef.child("members").on("child_changed", function(snapshot) {
+//         var user_id = snapshot.name();
+//         var $member = $("#" + room_id + " .user-" + user_id);
+//         if (snapshot.val().online) {
+//             $member.removeClass("offline");
+//         } else {
+//             $member.addClass("offline");
+//         }
+//     });
+// }
