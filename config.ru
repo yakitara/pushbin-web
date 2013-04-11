@@ -2,5 +2,5 @@
 require 'rubygems'
 require 'bundler'
 Bundler.require
-require './pusceiver-web'
+require './pushbin-web'
 run Sinatra::Application
