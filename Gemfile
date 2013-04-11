@@ -6,3 +6,4 @@ gem 'omniauth-twitter'
 gem 'firebase_token_generator'
 gem 'addressable' # the replacement for URI
 gem 'thin'
+#gem 'execjs'

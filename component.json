@@ -1,7 +1,7 @@
 {
   "name": "pushbin-web",
-  "version": "0.0.0",
+  "version": "0.0.2",
   "dependencies": {
-      "knockoutFire": "git@github.com:hiroshi/knockoutFire.git"
+      "knockoutFire": "https://github.com/hiroshi/knockoutFire.git"
   }
 }

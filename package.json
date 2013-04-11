@@ -1,6 +1,10 @@
-"dependencies": {
-    "bower": "*"
-},
-"scripts": {
-    "postinstall": "./node_modules/bower/bin/bower install"
+{
+    "name": "pushbin-web",
+    "version": "0.0.2",
+    "dependencies": {
+        "bower": "*"
+    },
+    "scripts": {
+        "postinstall": "./node_modules/bower/bin/bower install"
+    }
 }
