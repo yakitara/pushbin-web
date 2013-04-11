@@ -70,16 +70,19 @@ Pushbin.itemExtendFunc = function(item, firebaseRef) {
 Pushbin.roomExtendFunc = function(room, roomRef) {
     room.path = roomRef.path.toString();
     room.name = roomRef.name();
-    room.textToPush = ko.observable("");
-    room.pushItem = function() {
-        var val = {
-            ".priority": Number("1." + Date.now()),
-            "user_id": Pushbin.userRef.name(),
-            "text": this.textToPush()
-        };
-        roomRef.child("items").push(val);
-        this.textToPush("");
-    };
+    room.newItem = {
+        "text": ko.observable(""),
+        "push": function(priority) {
+            var self = this;
+            var val = {
+                ".priority": priority + Number("0." + Date.now()),
+                "user_id": Pushbin.userRef.name(),
+                "text": self.text()
+            };
+            roomRef.child("items").push(val);
+            self.text("");
+        }
+    }
     room.states = [
         {name: "Done"},
         {name: "Current"},
