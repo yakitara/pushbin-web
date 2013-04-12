@@ -5,7 +5,7 @@ require 'addressable/uri'
 set :views, "views"
 set :public_folder, "public"
 
-locals = {:firebase_url => (ENV['FIREBASE_URL'] || 'https://pushbin.firebaseio.com/')}
+locals = {:firebase_url => ENV['FIREBASE_URL']}
 
 get %r{^/(rooms/.*)?$} do
   response.set_cookie('firebaseUserToken', :value => session['firebaseUserToken'], :path => "/")
