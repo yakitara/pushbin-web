@@ -28,7 +28,7 @@ end
 %w(get post).each do |method|
   send(method, "/auth/:provider/callback") do |provider|
     auth_hash = env['omniauth.auth'] # => OmniAuth::AuthHash
-    generator = Firebase::FirebaseTokenGenerator.new(ENV['FIREBASE_APP_SECRET'])
+    generator = Firebase::FirebaseTokenGenerator.new(ENV['FIREBASE_SECRET'])
     payload = {
       :provider => auth_hash['provider'],
       :id => auth_hash['uid'],
