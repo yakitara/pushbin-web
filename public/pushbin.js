@@ -34,9 +34,9 @@ Pushbin.itemExtendFunc = function(item, firebaseRef) {
     item.title = ko.computed(function() {
         return item.formatted_text().match(/(.*)\n?/)[1];
     });
-    item.nickname = ko.observable(item.user_id());
-    firebaseRef.root().child("/users/" + item.user_id() + "/nickname").on("value", function(valueSnap) {
-        item.nickname(valueSnap.val());
+    item.screen_name = ko.observable(item.user_id());
+    firebaseRef.root().child("/users/" + item.user_id() + "/screen_name").on("value", function(valueSnap) {
+        item.screen_name(valueSnap.val());
     });
     item.move = function(data, event) {
         var start = $(event.currentTarget).data("start");
@@ -110,7 +110,7 @@ Pushbin.User = {};
 Pushbin.User.init = function(auth) {
     var user_path = "/users/" + auth.id;
     Pushbin.userRef = Pushbin.rootRef.child(user_path);
-    Pushbin.userRef.update({"nickname": auth.nickname});
+    Pushbin.userRef.update({"screen_name": auth.nickname});
     // bind
     var viewModel = {}
     viewModel.rooms = ko.observableArray().extend({firebaseArray:{
@@ -155,7 +155,7 @@ Pushbin.User.init = function(auth) {
     if (match) {
         Pushbin.userRef.child(match[1]).set(1);
     }
-    // nickname
+    // screen_name
     $("#user").text("@" + auth.nickname);
 }
 Pushbin.init = function(firebaseUrl) {
