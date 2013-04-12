@@ -191,8 +191,10 @@ $(document).on("click", '.nav-tabs a', function (e) {
 
 // New room
 $("a[href='#new-room']").click(function() {
-    var room = Pushbin.rootRef.child("/rooms").push({title: "New room"});
-    var path = "rooms/" + room.name();
+    var room = {title: "New room", members: {}};
+    room.members[Pushbin.userRef.name()] = 1;
+    var roomRef = Pushbin.rootRef.child("/rooms").push(room);
+    var path = "rooms/" + roomRef.name();
     window.history.pushState(null, null, "/" + path);
     Pushbin.userRef.child(path).set(1);
     return false;

@@ -1,0 +1,19 @@
+{
+  "rules": {
+    "users": {
+      "$user_id": {
+        ".read": "auth.id == $user_id",
+        ".write": "auth.id == $user_id",
+        "screen_name": {
+          ".read": true,
+        }
+      }
+    },
+    "rooms": {
+      ".write": "auth != null",
+      "$room_id": {
+        ".read": "data.child('members').hasChild(auth.id)",
+      }
+    }
+  }
+}
