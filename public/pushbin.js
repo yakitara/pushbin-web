@@ -200,30 +200,6 @@ $("a[href='#new-room']").click(function() {
     return false;
 });
 
-// Edit room
-$(document).on("click", "a[href='#room-edit']", function(e) {
-    var room_id = $(this).closest(".tab-pane").prop("id");
-    Pushbin.rootRef.child("/rooms/" + room_id).once("value", function(roomSnapshot) {
-        var room = roomSnapshot.val();
-        $("#room-edit input[name='title']").val(room.title);
-        $("#room-edit form").prop("action", roomSnapshot.ref().path.toString());
-        $("#room-edit").modal();
-    });
-    return false;
-});
-// Update room
-$(document).on("submit", "#room-edit form", function(e) {
-    e.preventDefault();
-    var path = $(this).attr("action");
-    var val = $(this).serializeObject();
-    Pushbin.rootRef.child(path).update(val, function(error) {
-        if (error) {
-            console.log(error);
-        } else {
-            $("#room-edit").modal('hide');
-        }
-    });
-});
 // Leave room
 $(document).on("click", "a[href='#room-leave']", function(e) {
     var $pane = $(this).closest(".tab-pane").remove();
@@ -264,6 +240,30 @@ $(document).on("click", "a[href='#item-edit']", function(e) {
     return false;
 });
 
+// // Edit room
+// $(document).on("click", "a[href='#room-edit']", function(e) {
+//     var room_id = $(this).closest(".tab-pane").prop("id");
+//     Pushbin.rootRef.child("/rooms/" + room_id).once("value", function(roomSnapshot) {
+//         var room = roomSnapshot.val();
+//         $("#room-edit input[name='title']").val(room.title);
+//         $("#room-edit form").prop("action", roomSnapshot.ref().path.toString());
+//         $("#room-edit").modal();
+//     });
+//     return false;
+// });
+// // Update room
+// $(document).on("submit", "#room-edit form", function(e) {
+//     e.preventDefault();
+//     var path = $(this).attr("action");
+//     var val = $(this).serializeObject();
+//     Pushbin.rootRef.child(path).update(val, function(error) {
+//         if (error) {
+//             console.log(error);
+//         } else {
+//             $("#room-edit").modal('hide');
+//         }
+//     });
+// });
 // Pushbin.Room.initItems = function (room_id, path) {
 //     $("#" + room_id).find(".nav-pills.item-states > li").each(function() {
 //         var $pill = $(this);

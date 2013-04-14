@@ -62,7 +62,7 @@
                     <i class="icon-cog"></i>
                   </a>
                   <ul class="dropdown-menu">
-                    <li><a href="#room-edit">Edit</a></li>
+                    <li><a data-toggle="modal" data-bind="attr: {href: '#' + name + '_edit'}">Edit</a></li>
                     <li><a href="#room-leave">Leave</a></li>
                   </ul>
                 </div>
@@ -126,7 +126,24 @@
                   </ul>
                 </div>
               </div>
-            </div>
+
+              <div class="modal hide" data-keyboard="true" data-bind="attr: {id: name + '_edit'}">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal">×</button>
+                  <h3>
+                    <input type="text" name="title" data-bind="value: title, valueUpdate: 'keyup'">
+                  </h3>
+                </div>
+                <div class="modal-body">
+                  <fieldset>
+                    <legend>Members</legend>
+                    <ul data-bind="foreach: members">
+                      <li data-bind="text: screen_name">
+                    </ul>
+                  </fieldset>
+                </div>
+              </div>
+            </div><!-- room -->
           </div>
         </div>
         <div class="span4">
@@ -138,24 +155,6 @@
           </div>
         </div>
       </div>
-    </div>
-    
-    <div id="room-edit" class="modal hide" role="dialog">
-      <form class="modal-form">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal">×</button>
-          <h3>
-            <input type="text" name="title">
-          </h3>
-        </div>
-        <div class="modal-body">
-          
-        </div>
-        <div class="modal-footer">
-          <a class="btn" data-dismiss="modal">Cancel</a>
-          <button class="btn btn-primary">Update</button>
-        </div>
-      </form>
     </div>
     
     <script type='text/javascript' src='http://code.jquery.com/jquery-1.9.1.min.js'></script>
