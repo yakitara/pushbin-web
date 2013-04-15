@@ -49,26 +49,27 @@
           <ul class="nav nav-tabs" id="rooms-tabs">
             <!-- ko foreach: rooms -->
             <li>
-              <a href="/" data-target="#private" data-bind="text: title, attr: {href: path, 'data-target': '#' + name}">Private</a>
+              <a href="/" data-target="#private" data-bind="text: title, attr: {href: _path, 'data-target': '#' + _name}">Private</a>
             </li>
             <!-- /ko -->
             <li><a href="#new-room"><i class="icon-plus"></i></a></li>
           </ul>
-          <div class="tab-content" id="rooms-pane" data-bind="foreach: {data: rooms, afterAdd: activateRoomAndStateIfPathMatched}">
-            <div class="tab-pane room" data-bind="attr: {id: name}">
+          <div class="tab-content" id="rooms-pane" data-bind="foreach: {data: $data.rooms, afterAdd: $data.activateRoomAndStateIfPathMatched}">
+            <div class="tab-pane room" data-bind="attr: {id: _name}">
               <div class="room-header">
                 <div class="dropdown pull-right room-menu">
                   <a class="btn btn-small" data-toggle="dropdown">
                     <i class="icon-cog"></i>
                   </a>
                   <ul class="dropdown-menu">
-                    <li><a data-toggle="modal" data-bind="attr: {href: '#' + name + '_edit'}">Edit</a></li>
+                    <li><a data-toggle="modal" data-bind="attr: {href: '#' + _name + '_edit'}">Edit</a></li>
                     <li><a href="#room-leave">Leave</a></li>
                   </ul>
                 </div>
                 <div class="members">
                 </div>
               </div>
+
               <form data-bind="with: newItem">
                 <textarea name="text" class="input-block-level" data-bind="value: text, valueUpdate: 'afterkeydown'"></textarea>
                 <div style="height:30px;">
@@ -81,14 +82,14 @@
               </form>
 
               <ul class="nav nav-pills item-states" data-bind="foreach: states">
-                <li data-bind="attr: {'data-start': start}"><a data-bind="attr: {href: path, 'data-target': '#' + id}"><span data-bind="text: name"></span> <span class="badge" data-bind="text: items.count"></span></a></li>
+                <li data-bind="attr: {'data-start': start}"><a data-bind="attr: {href: path, 'data-target': '#' + id}"><span data-bind="text: name"></span> <span class="badge" data-bind="text: items().count"></span></a></li>
               </ul>
 
               <div class="pill-content item-states" data-bind="foreach: states">
                 <div class="pill-pane item-state" data-bind="attr: {id: id}">
                   <ul class="items" data-bind="foreach: items">
                     <li class="item activate" onclick="">
-                      <div class="user activate" data-bind="text: screen_name"></div>
+                      <div class="user activate" data-bind="text: author().screen_name"></div>
                       <div class="active-hide">
                         <div class="title activate" data-bind="html: title"></div>
                       </div>
@@ -116,9 +117,6 @@
                             <a class="btn btn-small" href="#item-edit" data-toggle="button">
                               <i class="icon-edit"></i>
                             </a>
-                            <!--<a class="btn btn-small btn-danger" href="#item-done">
-                              <i class="icon-check"></i>
-                            </a>-->
                           </div>
                         </div>
                       </div>
@@ -127,7 +125,7 @@
                 </div>
               </div>
 
-              <div class="modal hide" data-keyboard="true" data-bind="attr: {id: name + '_edit'}">
+              <div class="modal hide" data-keyboard="true" data-bind="attr: {id: _name + '_edit'}">
                 <div class="modal-header">
                   <button type="button" class="close" data-dismiss="modal">×</button>
                   <h3>
@@ -137,9 +135,9 @@
                 <div class="modal-body">
                   <fieldset>
                     <legend>Members</legend>
-                    <ul data-bind="foreach: members">
-                      <li data-bind="text: screen_name">
-                    </ul>
+                    <!-- <ul data-bind="foreach: members"> -->
+                    <!--   <li data-bind="text: screen_name"> -->
+                    <!-- </ul> -->
                   </fieldset>
                 </div>
               </div>
