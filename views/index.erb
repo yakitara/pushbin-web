@@ -49,20 +49,20 @@
           <ul class="nav nav-tabs" id="rooms-tabs">
             <!-- ko foreach: rooms -->
             <li>
-              <a href="/" data-target="#private" data-bind="text: title, attr: {href: _path, 'data-target': '#' + _name}">Private</a>
+              <a href="/" data-target="#private" data-bind="text: title, attr: {href: firebase.path.toString(), 'data-target': '#' + firebase.name()}">Private</a>
             </li>
             <!-- /ko -->
             <li><a href="#new-room"><i class="icon-plus"></i></a></li>
           </ul>
           <div class="tab-content" id="rooms-pane" data-bind="foreach: {data: $data.rooms, afterAdd: $data.activateRoomAndStateIfPathMatched}">
-            <div class="tab-pane room" data-bind="attr: {id: _name}">
+            <div class="tab-pane room" data-bind="attr: {id: firebase.name()}">
               <div class="room-header">
                 <div class="dropdown pull-right room-menu">
                   <a class="btn btn-small" data-toggle="dropdown">
                     <i class="icon-cog"></i>
                   </a>
                   <ul class="dropdown-menu">
-                    <li><a data-toggle="modal" data-bind="attr: {href: '#' + _name + '_edit'}">Edit</a></li>
+                    <li><a data-toggle="modal" data-bind="attr: {href: '#' + firebase.name() + '_edit'}">Edit</a></li>
                     <li><a href="#room-leave">Leave</a></li>
                   </ul>
                 </div>
@@ -89,7 +89,9 @@
                 <div class="pill-pane item-state" data-bind="attr: {id: id}">
                   <ul class="items" data-bind="foreach: items">
                     <li class="item activate" onclick="">
-                      <div class="user activate" data-bind="text: author().screen_name"></div>
+
+                      <div class="user activate" data-bind="text: author().last().screen_name"></div>
+
                       <div class="active-hide">
                         <div class="title activate" data-bind="html: title"></div>
                       </div>
@@ -125,7 +127,7 @@
                 </div>
               </div>
 
-              <div class="modal hide" data-keyboard="true" data-bind="attr: {id: _name + '_edit'}">
+              <div class="modal hide" data-keyboard="true" data-bind="attr: {id: firebase.name() + '_edit'}">
                 <div class="modal-header">
                   <button type="button" class="close" data-dismiss="modal">×</button>
                   <h3>
@@ -159,6 +161,7 @@
     <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
     <script type='text/javascript' src='http://cdn.jsdelivr.net/jquery.cookie/1.3.1/jquery.cookie.js'></script>
     <script type='text/javascript' src='https://cdn.firebase.com/v0/firebase.js'></script>
+    <!-- <script type='text/javascript' src='https://cdn.firebase.com/v0/firebase-debug.js'></script> -->
     <!--<script type='text/javascript' src='https://cdn.firebase.com/v0/firebase-auth-client.js'></script>-->
     <script type='text/javascript' src='//cdn.jsdelivr.net/knockout/2.2.1/knockout-2.2.1.js'></script>
     <script type='text/javascript' src='/components/knockoutFire/knockoutFire.js'></script>

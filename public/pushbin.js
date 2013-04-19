@@ -24,15 +24,9 @@ Pushbin = {
     userRef: null,
 }
 /*
-  
+  pushbinItem KnockoutJs extender
 */
-// KnockoutFire.map
-
-
-/*
-  
-*/
-ko.extenders.pushbinItem = function(item, options) {
+ko.extenders.pushbinItem = function(item) {
     item().formatted_text = ko.computed(function() {
         var text = $("<pre>").text(item().text()).html();
         return text.replace(/(https?:\/\/[^\s+]+)/, "<a href='$1'>$1</a>");
@@ -43,82 +37,44 @@ ko.extenders.pushbinItem = function(item, options) {
     item().move = function(data, event) {
         var start = $(event.currentTarget).data("start");
         var priority = Number(start) + Number("0." + Date.now());
-        item._ref.setPriority(priority, function(error) {
+        item.firebase.setPriority(priority, function(error) {
             //NOTE: workaround for http://stackoverflow.com/questions/15437229
-            console.log("setPriority");
-            var beforeStateContext = ko.contextFor($(event.currentTarget).parents("ul.items")[0]);
-            var beforeState = beforeStateContext.$data;
-            if (beforeState.start != start) {
-                var idx = -1;
-                beforeState.items().forEach(function(item, i) {
-                    if (item._name == data._name) {
-                        idx = i;
-                    }
-                });
-                var item = beforeState.items.splice(idx, 1)[0];
-                beforeStateContext.$parent.states.forEach(function(state, i) {
-                    if (state.start == start) {
-                        state.items.unshift(item);
-                    }
-                });
-            }
+            // console.log("setPriority");
+            // var beforeStateContext = ko.contextFor($(event.currentTarget).parents("ul.items")[0]);
+            // var beforeState = beforeStateContext.$data;
+            // if (beforeState.start != start) {
+            //     var idx = -1;
+            //     beforeState.items().forEach(function(item, i) {
+            //         if (item.firebase.name() == data.firebase.name()) {
+            //             idx = i;
+            //         }
+            //     });
+            //     var item = beforeState.items.splice(idx, 1)[0];
+            //     beforeStateContext.$parent.states.forEach(function(state, i) {
+            //         if (state.start == start) {
+            //             state.items.unshift(item);
+            //         }
+            //     });
+            // }
         });
     };
-    item().startPriority = item()._priority ? item()._priority.toFixed() : 0;
+    item().startPriority = item()[".priority"] ? item()[".priority"].toFixed() : 0;
 };
-// Pushbin.itemExtendFunc = function(item, firebaseRef) {
-//     item.formatted_text = ko.computed(function() {
-//         var text = $("<pre>").text(item.text()).html();
-//         return text.replace(/(https?:\/\/[^\s+]+)/, "<a href='$1'>$1</a>");
-//     });
-//     item.title = ko.computed(function() {
-//         return item.formatted_text().match(/(.*)\n?/)[1];
-//     });
-//     item.screen_name = ko.observable(item.user_id());
-//     firebaseRef.root().child("/users/" + item.user_id() + "/screen_name").on("value", function(valueSnap) {
-//         item.screen_name(valueSnap.val());
-//     });
-//     item.move = function(data, event) {
-//         var start = $(event.currentTarget).data("start");
-//         var priority = Number(start) + Number("0." + Date.now());
-//         firebaseRef.setPriority(priority, function(error) {
-//             //NOTE: workaround for http://stackoverflow.com/questions/15437229
-//             console.log("setPriority");
-//             var beforeStateContext = ko.contextFor($(event.currentTarget).parents("ul.items")[0]);
-//             var beforeState = beforeStateContext.$data;
-//             if (beforeState.start != start) {
-//                 var idx = -1;
-//                 beforeState.items().forEach(function(item, i) {
-//                     if (item._name == data._name) {
-//                         idx = i;
-//                     }
-//                 });
-//                 var item = beforeState.items.splice(idx, 1)[0];
-//                 beforeStateContext.$parent.states.forEach(function(state, i) {
-//                     if (state.start == start) {
-//                         state.items.unshift(item);
-//                     }
-//                 });
-//             }
-//         });
-//     };
-//     item.startPriority = item._priority ? item._priority.toFixed() : 0;
-// };
 /*
-  
+  pushbinRoom KnockoutJs extender
 */
-ko.extenders.pushbinRoom = function(room, options) {
-    //room().path = "#hoge";
+ko.extenders.pushbinRoom = function(room) {
     room().newItem = {
         "text": ko.observable(""),
         "push": function(priority) {
             var self = this;
             var val = {
                 ".priority": priority + Number("0." + Date.now()),
-                "author": Pushbin.userRef.name(),
+                "author": {},
                 "text": self.text()
             };
-            room._ref.child("items").push(val);
+            val.author[Pushbin.userRef.name()] = true;
+            room.firebase.child("items").push(val);
             self.text("");
         }
     };
@@ -130,20 +86,21 @@ ko.extenders.pushbinRoom = function(room, options) {
     ];
     room().states.forEach(function(state, i) {
         state.start = i - 1;
-        state.id = room()._name + "_" + state.name.toLowerCase();
-        state.path = room()._path + "/" + state.name.toLowerCase();
-        // state.items = ko.observableArray().extend({firebaseArray:{
-        //     "firebase": ref,
-        //     "reverseOrder": true,
-        //     "itemExtendFunc": Pushbin.itemExtendFunc,
-        // }});
+        state.id = room.firebase.name() + "_" + state.name.toLowerCase();
+        state.path = room.firebase.path.toString() + "/" + state.name.toLowerCase();
         state.items = KnockoutFire.observable(
-            room._ref.child("items").startAt(i - 1).endAt(i),
+            room.firebase.child("items").startAt(i - 1).endAt(i),
             {
                 ".reverse": true,
                 "$item": {
                     ".extend": {"pushbinItem": {}},
-                    "author": {".indexOf": "/users/data()"},
+                    "author": {
+                        "$user": {
+                            ".indexOf": "/users/$user",
+                            "screen_name": true
+                        }
+                    },
+                    "text": true
                 }
             }
         );
@@ -154,75 +111,27 @@ ko.extenders.pushbinRoom = function(room, options) {
     });
 };
 
-// Pushbin.roomExtendFunc = function(room, roomRef) {
-//     room.path = roomRef.path.toString();
-//     room.name = roomRef.name();
-//     room.newItem = {
-//         "text": ko.observable(""),
-//         "push": function(priority) {
-//             var self = this;
-//             var val = {
-//                 ".priority": priority + Number("0." + Date.now()),
-//                 "user_id": Pushbin.userRef.name(),
-//                 "text": self.text()
-//             };
-//             roomRef.child("items").push(val);
-//             self.text("");
-//         }
-//     }
-//     room.states = [
-//         {name: "Done"},
-//         {name: "Current"},
-//         {name: "Backlog"},
-//         {name: "Icebox"}
-//     ];
-//     room.states.forEach(function(state, i) {
-//         var ref = roomRef.child("items").startAt(i - 1).endAt(i);
-//         state.start = i - 1;
-//         state.id = room.name + "_" + state.name.toLowerCase();
-//         state.path = room.path + "/" + state.name.toLowerCase();
-//         state.items = ko.observableArray().extend({firebaseArray:{
-//             "firebase": ref,
-//             "reverseOrder": true,
-//             "itemExtendFunc": Pushbin.itemExtendFunc,
-//         }});
-//         state.items.count = ko.computed(function() {
-//             var len = state.items().length;
-//             return len > 0 ? len : null;
-//         });
-//     });
-// };
-
 Pushbin.User = {};
 Pushbin.User.init = function(auth) {
     var user_path = "/users/" + auth.id;
     Pushbin.userRef = Pushbin.rootRef.child(user_path);
     Pushbin.userRef.update({"screen_name": auth.nickname});
-    // bind
-    //var viewModel = {}
-    // viewModel.rooms = ko.observableArray().extend({firebaseArray:{
-    //     "firebase": Pushbin.userRef.child("rooms"),
-    //     "reference": Pushbin.rootRef.child("rooms"),
-    //     "excludes": ["items"],
-    //     "itemExtendFunc": Pushbin.roomExtendFunc,
-    // }});
     var viewModel = KnockoutFire.observable(
         Pushbin.userRef, 
         {
+            "screen_name": true,
             "rooms": {
-                //".type": "array",
                 "$room": {
                     ".indexOf": "/rooms/$room",
-                    ".extend": {"pushbinRoom": {}}
-                    // "newItem": {
-                    // }
+                    ".extend": {"pushbinRoom": null},
+                    "title": true,
                 }
             }
         }
     );
     viewModel().activateRoomAndStateIfPathMatched = function(element, index, data) {
         var path = window.location.pathname;
-        var match = path.match(data()._path + "/?.*");
+        var match = path.match(data.firebase.path.toString() + "/?.*");
         if (match) {
             $("a[data-target='#" + $(element).attr("id") + "']").tab('show');
             $(element).find(".nav-pills.item-states a[href='" + path + "']").pill("show");
