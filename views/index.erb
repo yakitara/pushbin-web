@@ -57,6 +57,10 @@
           <div class="tab-content" id="rooms-pane" data-bind="foreach: {data: $data.rooms, afterAdd: $data.activateRoomAndStateIfPathMatched}">
             <div class="tab-pane room" data-bind="attr: {id: firebase.name()}">
               <div class="room-header">
+                <a class="btn btn-small pull-right" data-toggle="modal" data-bind="attr: {href: '#' + firebase.name() + '_edit'}">
+                  <i class="icon-cog"></i>
+                </a>
+                <!--
                 <div class="dropdown pull-right room-menu">
                   <a class="btn btn-small" data-toggle="dropdown">
                     <i class="icon-cog"></i>
@@ -66,6 +70,7 @@
                     <li><a href="#room-leave">Leave</a></li>
                   </ul>
                 </div>
+                -->
                 <div class="members">
                 </div>
               </div>
