@@ -43,8 +43,10 @@ ul.items {
 .item:hover,.item.active {
    background-color: #eee;
 }
-.item-menu { height: 26px; }
+.item-menu { height: 30px; position: relative; }
 .item .user { color: darkgray; }
+.item .buttons { position:absolute; top:0px; right:0px; }
+.item .buttons .btn { margin-left: 3px; }
 .item .title { margin:0 4px; }
 /*.item [href='#item-edit'] {
    position: absolute;

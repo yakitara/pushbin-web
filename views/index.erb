@@ -95,7 +95,29 @@
                   <ul class="items" data-bind="foreach: items">
                     <li class="item activate" onclick="">
 
-                      <div class="user activate" data-bind="text: author().last().screen_name"></div>
+                      <div class="item-menu activate">
+                        <span class="user">@<span data-bind="text: author().last().screen_name"></span></span>
+                        <div class="active-show buttons">
+                          <div class="btn-group pull-right">
+                            <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
+                              <i class="icon-sort"></i><!--<span class="caret"></span>-->
+                            </a>
+                            <ul class="dropdown-menu">
+                              <li><a data-bind="click: move" data-start="-1">Done</a></li>
+                              <li><a data-bind="click: move" data-start="0">Current</a></li>
+                              <li><a data-bind="click: move" data-start="1">Backlog</a></li>
+                              <li><a data-bind="click: move" data-start="2">Icebox</a></li>
+                            </ul>
+                          </div>
+                          <!--
+                          <a class="btn btn-small" data-bind="attr: {'data-start': startPriority}, click: move">
+                            <i class="icon-arrow-up"></i>
+                          </a>-->
+                          <a class="btn btn-small" href="#item-edit" data-toggle="button">
+                            <i class="icon-edit"></i>
+                          </a>
+                        </div>
+                      </div>
 
                       <div class="active-hide">
                         <div class="title activate" data-bind="html: title"></div>
@@ -105,27 +127,6 @@
                         <form class="edit-show">
                           <textarea class="input-block-level" name="text" rows="8" data-bind="value: text, valueUpdate: 'keyup'"></textarea>
                         </form>
-                        <div class="item-menu activate">
-                          <div>
-                            <div class="btn-group pull-right">
-                              <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
-                                <i class="icon-check"></i><span class="caret"></span>
-                              </a>
-                              <ul class="dropdown-menu">
-                                <li><a data-bind="click: move" data-start="-1">Done</a></li>
-                                <li><a data-bind="click: move" data-start="0">Current</a></li>
-                                <li><a data-bind="click: move" data-start="1">Backlog</a></li>
-                                <li><a data-bind="click: move" data-start="2">Icebox</a></li>
-                              </ul>
-                            </div>
-                            <a class="btn btn-small" data-bind="attr: {'data-start': startPriority}, click: move">
-                              <i class="icon-arrow-up"></i>
-                            </a>
-                            <a class="btn btn-small" href="#item-edit" data-toggle="button">
-                              <i class="icon-edit"></i>
-                            </a>
-                          </div>
-                        </div>
                       </div>
                     </li>
                   </ul>
