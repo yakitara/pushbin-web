@@ -78,10 +78,10 @@
               <form data-bind="with: newItem">
                 <textarea name="text" class="input-block-level" data-bind="value: text, valueUpdate: 'afterkeydown'"></textarea>
                 <div style="height:30px;">
-                  <div class="pull-right">
-                    <input type="submit" class="btn btn-success" value="current" data-bind="click: push.bind($data, 0)"/>
+                  <div class="btn-group pull-right">
+                    <input type="submit" class="btn" value="current" data-bind="click: push.bind($data, 0)"/>
                     <input type="submit" class="btn" value="backlog" data-bind="click: push.bind($data, 1)"/>
-                    <input type="submit" class="btn btn-info" value="icebox" data-bind="click: push.bind($data, 2)"/>
+                    <input type="submit" class="btn" value="icebox" data-bind="click: push.bind($data, 2)"/>
                   </div>
                 </div>
               </form>
