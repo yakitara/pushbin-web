@@ -123,7 +123,7 @@
                         <div class="title activate" data-bind="html: title"></div>
                       </div>
                       <div class="active-show">
-                        <pre class="text activate edit-hide" data-bind="html: formatted_text"></pre>
+                        <pre class="text edit-hide" data-bind="html: formatted_text"></pre>
                         <form class="edit-show">
                           <textarea class="input-block-level" name="text" rows="8" data-bind="value: text, valueUpdate: 'keyup'"></textarea>
                         </form>
@@ -143,9 +143,24 @@
                 <div class="modal-body">
                   <fieldset>
                     <legend>Members</legend>
-                    <!-- <ul data-bind="foreach: members"> -->
-                    <!--   <li data-bind="text: screen_name"> -->
-                    <!-- </ul> -->
+                    <ul data-bind="foreach: members">
+                      <li data-bind="text: screen_name">
+                    </ul>
+                  </fieldset>
+                  <fieldset>
+                    <legend>Invitations</legend>
+                    <ul data-bind="foreach: invitations">
+                      <li data-bind="text: $parent.invitations()[$index()].firebase.name()">
+                    </ul>
+                    <form class="form-inline" data-bind="submit: invitations.create">
+                    <!-- ko with:invitations.newItem -->
+                      <div class="input-prepend">
+                        <span class="add-on">@</span>
+                        <input type="text" data-bind="value: _name" placeholder="screen name">
+                      </div>
+                      <button type="submit">Invite</button>
+                    <!-- /ko -->
+                    </form>
                   </fieldset>
                 </div>
                 <div class="modal-footer">

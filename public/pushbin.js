@@ -110,6 +110,12 @@ ko.extenders.pushbinRoom = function(room) {
         });
     });
 };
+// ko.extenders.roomMembers = function(members) {
+//     members.invite = function(data, event) {
+        
+//         members.firebase.set(
+//     };
+// };
 
 Pushbin.User = {};
 Pushbin.User.init = function(auth) {
@@ -125,6 +131,18 @@ Pushbin.User.init = function(auth) {
                     ".indexOf": "/rooms/$room",
                     ".extend": {"pushbinRoom": null},
                     "title": true,
+                    "members": {
+                        //".extend": {"roomMembers": null},
+                        "$user": {
+                            ".indexOf": "/users/$user",
+                            "screen_name": true
+                        }
+                    },
+                    "invitations": {
+                        ".newItem": true,
+                        "$screen_name": true
+                        //"$screen_name": {"screen_name": true}
+                    }
                 }
             }
         }
