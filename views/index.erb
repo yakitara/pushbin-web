@@ -43,24 +43,44 @@
               </form>
           </div>
 
-          <ul class="items" data-bind="foreach: items">
-            <li class="item activate" onclick="">
-              <div class="item-menu activate">
-                <span class="title activate active-hide" data-bind="html: title"></span>
-                <div class="active-show buttons">
-                  <a class="btn btn-small" href="#item-edit" data-toggle="button">
-                    <i class="icon-edit"></i>
-                  </a>
-                </div>
-              </div>
-              <div class="active-show">
-                <pre class="text edit-hide" data-bind="html: formatted_text"></pre>
-                <form class="edit-show">
-                  <textarea class="input-block-level" name="text" rows="8" data-bind="value: text, valueUpdate: 'keyup'"></textarea>
-                </form>
-              </div>
+          <ul class="nav nav-tabs" data-bind="foreach: tabs">
+            <li data-bind="css: {active: $index() == 0}">
+              <a data-toggle="tab" data-bind="attr: {href: '#' + id}">
+                <i data-bind="css: 'icon-' + icon"></i>
+              </a>
             </li>
           </ul>
+
+          <div class="tab-content" data-bind="foreach: tabs">
+            <div class="tab-pane" data-bind="attr: {id: id}, css: {active: $index() == 0}">
+              <ul class="items" data-bind="foreach: items">
+                <li class="item activate" onclick="">
+                  <div class="item-menu activate">
+                    <span class="title activate active-hide" data-bind="html: title"></span>
+                    <div class="active-show buttons">
+                      <a class="btn btn-small" href="#item-edit" data-toggle="button" data-bind="visible: editable">
+                        <i class="icon-edit"></i>
+                      </a>
+                      <a class="btn btn-small btn-danger" data-bind="visible: editable, click: trash">
+                        <i class="icon-trash"></i>
+                      </a>
+                      <a class="btn btn-small btn-primary" data-bind="visible: !editable, click: undo">
+                        <i class="icon-undo"></i>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="active-show">
+                    <pre class="text edit-hide" data-bind="html: formatted_text"></pre>
+                    <form class="edit-show">
+                      <textarea class="input-block-level" name="text" rows="8" data-bind="value: text, valueUpdate: 'keyup'"></textarea>
+                    </form>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+
         </div>
       </div>
     </div>

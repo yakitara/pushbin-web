@@ -19,9 +19,25 @@ ko.bindingHandlers.stopBindings = {
     }  
 };
 /*
+  pushbinUser KnockoutJs extender
+*/
+ko.extenders.pushbinUser = function(user) {
+    var trashesRef = user.firebase.child("items").endAt(0).limit(20);
+    var trashes = KnockoutFire.observable(trashesRef, {
+        "$item": {
+            ".extend": {"pushbinItem": {}},
+            "text": true
+        }
+    });
+    user().tabs = [
+        {"id": "items", "items": user().items, "icon": "inbox"},
+        {"id": "trashes", "items": trashes, "icon": "trash"},
+    ];
+};
+/*
   pushbinItem KnockoutJs extender
 */
-ko.extenders.pushbinItem = function(item) {
+ko.extenders.pushbinItem = function(item, options) {
     item().formatted_text = ko.computed(function() {
         var text = $("<pre>").text(item().text()).html();
         return text.replace(/(https?:\/\/[^\s+]+)/, "<a href='$1'>$1</a>");
@@ -29,6 +45,13 @@ ko.extenders.pushbinItem = function(item) {
     item().title = ko.computed(function() {
         return item().formatted_text().match(/(.*)\n?/)[1];
     });
+    item().trash = function() {
+        item.firebase.setPriority(- Date.now());
+    }
+    item().undo = function() {
+        item.firebase.setPriority(Date.now());
+    }
+    item().editable = options.editable;
 };
 /*
   Pushbin
@@ -45,14 +68,16 @@ Pushbin.User.init = function(auth) {
     var viewModel = KnockoutFire.observable(
         Pushbin.userRef, 
         {
-            //"screen_name": true,
+            ".extend": {"pushbinUser": null},
             "items": {
+                ".startAt": 0,
+                ".limit": 20,
                 ".reverse": true,
                 ".newItem": {
                     ".priority": function() { return Date.now() }
                 },
                 "$item": {
-                    ".extend": {"pushbinItem": null},
+                    ".extend": {"pushbinItem": {"editable": true}},
                     "text": true
                 }
             }
