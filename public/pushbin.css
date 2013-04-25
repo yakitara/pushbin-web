@@ -47,7 +47,7 @@ ul.items {
 .item .user { color: darkgray; }
 .item .buttons { position:absolute; top:0px; right:0px; }
 .item .buttons .btn { margin-left: 3px; }
-.item .title { margin:0 4px; }
+.item .title { margin:0 4px; vertical-align: middle; }
 /*.item [href='#item-edit'] {
    position: absolute;
    top: 8px;

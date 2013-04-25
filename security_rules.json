@@ -9,11 +9,5 @@
         }
       }
     },
-    "rooms": {
-      ".write": "auth != null",
-      "$room_id": {
-        ".read": "data.child('members').hasChild(auth.id)",
-      }
-    }
   }
 }

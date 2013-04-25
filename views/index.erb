@@ -13,180 +13,64 @@
   <body>
     <div class="navbar">
       <div class="navbar-inner">
-        <!--<button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>-->
         <a class="brand" href="/">Pushbin</a>
-        <!--<ul class="nav">
-          <li class="active"><a href="#">Home</a></li>
-          <li><a href="#">Link</a></li>
-          <li><a href="#">Link</a></li>
-        </ul>-->
-        <!--<div class="nav-collapse collapse">-->
           <ul class="nav pull-right">
             <li class="dropdown hide-loggedin">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-signin"></i> Login <b class="caret"></b></a>
               <ul class="dropdown-menu">
-                <li><a href="/auth/twitter"><i class="icon-twitter"></i> Twitter</a></li>
+                <li><a id="login-twitter"><i class="icon-twitter"></i> Twitter</a></li>
               </ul>
             </li>
-            <li class="dropdown show-loggedin">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-user"></i> <span id="user"></span> <!--<b class="caret"></b>--></a>
-              <!--<ul class="dropdown-menu">
-                  <li><a href="/auth/twitter"><i class="icon-twitter"></i> Twitter</a></li>
-              </ul>-->
+            <li class="show-loggedin">
+              <a><i class="icon-user"></i> <span id="login-name"></span></a>
             </li>
           </ul>
-        <!--</div>-->
       </div>
     </div>
     
     <div class="container">
       <div class="row">
-        <div class="span8 show-loggedin" id="rooms">
-          <ul class="nav nav-tabs" id="rooms-tabs">
-            <!-- ko foreach: rooms -->
-            <li>
-              <a href="/" data-target="#private" data-bind="text: title, attr: {href: firebase.path.toString(), 'data-target': '#' + firebase.name()}">Private</a>
-            </li>
-            <!-- /ko -->
-            <li><a href="#new-room"><i class="icon-plus"></i></a></li>
-          </ul>
-          <div class="tab-content" id="rooms-pane" data-bind="foreach: {data: $data.rooms, afterAdd: $data.activateRoomAndStateIfPathMatched}">
-            <div class="tab-pane room" data-bind="attr: {id: firebase.name()}">
-              <div class="room-header">
-                <a class="btn btn-small pull-right" data-toggle="modal" data-bind="attr: {href: '#' + firebase.name() + '_edit'}">
-                  <i class="icon-cog"></i>
-                </a>
-                <!--
-                <div class="dropdown pull-right room-menu">
-                  <a class="btn btn-small" data-toggle="dropdown">
-                    <i class="icon-cog"></i>
-                  </a>
-                  <ul class="dropdown-menu">
-                    <li><a data-toggle="modal" data-bind="attr: {href: '#' + firebase.name() + '_edit'}">Edit</a></li>
-                    <li><a href="#room-leave">Leave</a></li>
-                  </ul>
-                </div>
-                -->
-                <div class="members">
-                </div>
-              </div>
+        <div class="span8 show-loggedin" id="ko-bind-user">
 
-              <form data-bind="with: newItem">
-                <textarea name="text" class="input-block-level" data-bind="value: text, valueUpdate: 'afterkeydown'"></textarea>
+          <div data-bind="with: items.newItem">
+              <form data-bind="submit: create">
+                <textarea class="input-block-level" data-bind="value: text, valueUpdate: 'afterkeydown'"></textarea>
                 <div style="height:30px;">
                   <div class="btn-group pull-right">
-                    <input type="submit" class="btn" value="current" data-bind="click: push.bind($data, 0)"/>
-                    <input type="submit" class="btn" value="backlog" data-bind="click: push.bind($data, 1)"/>
-                    <input type="submit" class="btn" value="icebox" data-bind="click: push.bind($data, 2)"/>
+                    <input type="submit" class="btn btn-primary" value="Push"/>
                   </div>
                 </div>
               </form>
+          </div>
 
-              <ul class="nav nav-pills item-states" data-bind="foreach: states">
-                <li data-bind="attr: {'data-start': start}"><a data-bind="attr: {href: path, 'data-target': '#' + id}"><span data-bind="text: name"></span> <span class="badge" data-bind="text: items().count"></span></a></li>
-              </ul>
-
-              <div class="pill-content item-states" data-bind="foreach: states">
-                <div class="pill-pane item-state" data-bind="attr: {id: id}">
-                  <ul class="items" data-bind="foreach: items">
-                    <li class="item activate" onclick="">
-
-                      <div class="item-menu activate">
-                        <span class="user">@<span data-bind="text: author().last().screen_name"></span></span>
-                        <div class="active-show buttons">
-                          <div class="btn-group pull-right">
-                            <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
-                              <i class="icon-sort"></i><!--<span class="caret"></span>-->
-                            </a>
-                            <ul class="dropdown-menu">
-                              <li><a data-bind="click: move" data-start="-1">Done</a></li>
-                              <li><a data-bind="click: move" data-start="0">Current</a></li>
-                              <li><a data-bind="click: move" data-start="1">Backlog</a></li>
-                              <li><a data-bind="click: move" data-start="2">Icebox</a></li>
-                            </ul>
-                          </div>
-                          <!--
-                          <a class="btn btn-small" data-bind="attr: {'data-start': startPriority}, click: move">
-                            <i class="icon-arrow-up"></i>
-                          </a>-->
-                          <a class="btn btn-small" href="#item-edit" data-toggle="button">
-                            <i class="icon-edit"></i>
-                          </a>
-                        </div>
-                      </div>
-
-                      <div class="active-hide">
-                        <div class="title activate" data-bind="html: title"></div>
-                      </div>
-                      <div class="active-show">
-                        <pre class="text edit-hide" data-bind="html: formatted_text"></pre>
-                        <form class="edit-show">
-                          <textarea class="input-block-level" name="text" rows="8" data-bind="value: text, valueUpdate: 'keyup'"></textarea>
-                        </form>
-                      </div>
-                    </li>
-                  </ul>
+          <ul class="items" data-bind="foreach: items">
+            <li class="item activate" onclick="">
+              <div class="item-menu activate">
+                <span class="title activate active-hide" data-bind="html: title"></span>
+                <div class="active-show buttons">
+                  <a class="btn btn-small" href="#item-edit" data-toggle="button">
+                    <i class="icon-edit"></i>
+                  </a>
                 </div>
               </div>
-
-              <div class="modal hide" data-keyboard="true" data-bind="attr: {id: firebase.name() + '_edit'}">
-                <div class="modal-header">
-                  <!--<button type="button" class="close" data-dismiss="modal">×</button-->
-                  <h3>
-                    <input type="text" name="title" data-bind="value: title, valueUpdate: 'keyup'">
-                  </h3>
-                </div>
-                <div class="modal-body">
-                  <fieldset>
-                    <legend>Members</legend>
-                    <ul data-bind="foreach: members">
-                      <li data-bind="text: screen_name">
-                    </ul>
-                  </fieldset>
-                  <fieldset>
-                    <legend>Invitations</legend>
-                    <ul data-bind="foreach: invitations">
-                      <li data-bind="text: $parent.invitations()[$index()].firebase.name()">
-                    </ul>
-                    <form class="form-inline" data-bind="submit: invitations.create">
-                    <!-- ko with:invitations.newItem -->
-                      <div class="input-prepend">
-                        <span class="add-on">@</span>
-                        <input type="text" data-bind="value: _name" placeholder="screen name">
-                      </div>
-                      <button type="submit">Invite</button>
-                    <!-- /ko -->
-                    </form>
-                  </fieldset>
-                </div>
-                <div class="modal-footer">
-                  <button class="btn btn-primary" data-dismiss="modal">Close</button>
-                </div>
+              <div class="active-show">
+                <pre class="text edit-hide" data-bind="html: formatted_text"></pre>
+                <form class="edit-show">
+                  <textarea class="input-block-level" name="text" rows="8" data-bind="value: text, valueUpdate: 'keyup'"></textarea>
+                </form>
               </div>
-            </div><!-- room -->
-          </div>
-        </div>
-        <div class="span4">
-          <div class="well well-small help-block">
-            <h4>Tips</h4>
-            <ul>
-              <li>You can share created rooms with people by telling them the URLs.</li>
-            </ul>
-          </div>
+            </li>
+          </ul>
         </div>
       </div>
     </div>
-    
+
     <script type='text/javascript' src='http://code.jquery.com/jquery-1.9.1.min.js'></script>
     <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
-    <script type='text/javascript' src='http://cdn.jsdelivr.net/jquery.cookie/1.3.1/jquery.cookie.js'></script>
+    <!-- <script type='text/javascript' src='http://cdn.jsdelivr.net/jquery.cookie/1.3.1/jquery.cookie.js'></script> -->
     <script type='text/javascript' src='https://cdn.firebase.com/v0/firebase.js'></script>
     <!-- <script type='text/javascript' src='https://cdn.firebase.com/v0/firebase-debug.js'></script> -->
-    <!--<script type='text/javascript' src='https://cdn.firebase.com/v0/firebase-auth-client.js'></script>-->
+    <script type='text/javascript' src='https://cdn.firebase.com/v0/firebase-auth-client.js'></script>
     <script type='text/javascript' src='//cdn.jsdelivr.net/knockout/2.2.1/knockout-2.2.1.js'></script>
     <script type='text/javascript' src='/components/knockoutFire/knockoutFire.js'></script>
     <script type='text/javascript' src='/serialize_object.js'></script>
